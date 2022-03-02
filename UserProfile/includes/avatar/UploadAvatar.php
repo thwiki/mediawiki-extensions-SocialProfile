@@ -122,8 +122,8 @@ class UploadAvatar extends UploadFromFile {
 		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$this->avatarUploadDirectory = $wgUploadDirectory . '/avatars';
 
-		$imageInfo = getimagesize( $this->mTempPath );
-		if ( empty( $imageInfo[2] ) ) {
+		$imageInfo = $this->mTempPath !== '' ? getimagesize( $this->mTempPath ) : null;
+		if ( is_null( $imageInfo ) || empty( $imageInfo[2] ) ) {
 			return Status::newFatal( 'empty-file' );
 		}
 
