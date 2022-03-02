@@ -229,7 +229,6 @@
 }
 
 .item {
-	color: #666;
 	margin: 5px 25px;
 }
 
@@ -314,13 +313,11 @@
 }
 
 .profile-info-container b {
-	color: #555;
 	margin: 0 10px 0 0;
 }
 
 .profile-info-container div {
 	margin: 0 0 8px 0;
-	color: #666;
 }
 
 .bold-fix b {
