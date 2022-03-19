@@ -375,7 +375,7 @@ class UserRelationship {
 		$rel_type = (int)($dbw->selectField(
 			'user_relationship',
 			'r_type',
-			[ 'r_user_id' => $user1, 'r_user_id_relation' => $user2 ],
+			[ 'r_actor' => $user1->getActorId(), 'r_actor_relation' => $user2->getActorId() ],
 			__METHOD__
 		));
 		$dbw->delete(
