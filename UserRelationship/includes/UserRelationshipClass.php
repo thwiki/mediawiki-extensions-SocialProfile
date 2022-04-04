@@ -342,10 +342,8 @@ class UserRelationship {
 			// Hooks (for Semantic SocialProfile mostly)
 			if ( $ur_type == 1 ) {
 				Hooks::run( 'NewFriendAccepted', [ $userFrom, $this->user ] );
-				Hooks::run( 'NewFriendAcceptedID', [ $ur_user_id_from, $this->user_id ] );
 			} else {
 				Hooks::run( 'NewFoeAccepted', [ $userFrom, $this->user ] );
-				Hooks::run( 'NewFoeAcceptedID', [ $ur_user_id_from, $this->user_id ] );
 			}
 
 			return true;
