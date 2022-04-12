@@ -22,7 +22,7 @@ class UploadAvatar extends UploadFromFile {
 			}
 			if ( $typeCode == 2 ) {
 				exec(
-					$wgImageMagickConvertCommand . ' -size ' . $thumbWidth . 'x' . $thumbWidth .
+					$wgImageMagickConvertCommand . ' convert -size ' . $thumbWidth . 'x' . $thumbWidth .
 					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
 					$thumbWidth . '+0+0   -quality 100 ' . $border . ' ' .
 					$imageSrc . ' ' . $this->avatarUploadDirectory . '/' . $imgDest . '.jpg'
@@ -30,7 +30,7 @@ class UploadAvatar extends UploadFromFile {
 			}
 			if ( $typeCode == 1 ) {
 				exec(
-					$wgImageMagickConvertCommand . ' -size ' . $thumbWidth . 'x' . $thumbWidth .
+					$wgImageMagickConvertCommand . ' convert -size ' . $thumbWidth . 'x' . $thumbWidth .
 					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
 					$thumbWidth . '+0+0 ' . $imageSrc . ' ' . $border . ' ' .
 					$this->avatarUploadDirectory . '/' . $imgDest . '.gif'
@@ -38,7 +38,7 @@ class UploadAvatar extends UploadFromFile {
 			}
 			if ( $typeCode == 3 ) {
 				exec(
-					$wgImageMagickConvertCommand . ' -size ' . $thumbWidth . 'x' . $thumbWidth .
+					$wgImageMagickConvertCommand . ' convert -size ' . $thumbWidth . 'x' . $thumbWidth .
 					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
 					$thumbWidth . '+0+0 ' . $imageSrc . ' ' .
 					$this->avatarUploadDirectory . '/' . $imgDest . '.png'
@@ -201,17 +201,31 @@ class UploadAvatar extends UploadFromFile {
 			}
 		}
 
-		$key = $cache->makeKey( 'user', 'profile', 'avatar', $uid, 's' );
-		$data = $cache->delete( $key );
+		$dest = $this->avatarUploadDirectory;
+		$sizes = [ 's', 'm', 'ml', 'l' ];
 
-		$key = $cache->makeKey( 'user', 'profile', 'avatar', $uid, 'm' );
-		$data = $cache->delete( $key );
+		// Also delete any and all old versions of the user's _current_ avatar
+		// because the code in wAvatar#getAvatarImage assumes that there is only
+		// one current avatar (which, in all fairness, *is* a reasonable assumption)
+		foreach ( [ 'gif', 'jpg', 'png' ] as $fileExtension ) {
+			if ( $fileExtension === $ext ) {
+				// Our brand new avatar; skip over it in order to _not_ delete it, obviously
+			} else {
+				// Delete every other avatar image for this user that exists in the
+				// avatars directory (usually <path to MW installation>/images/avatars)
+				foreach ( $sizes as $size ) {
+					if ( is_file( $dest . '/' . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension ) ) {
+						unlink( $dest . '/' . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension );
+					}
+				}
+			}
+		}
 
-		$key = $cache->makeKey( 'user', 'profile', 'avatar', $uid, 'l' );
-		$data = $cache->delete( $key );
-
-		$key = $cache->makeKey( 'user', 'profile', 'avatar', $uid, 'ml' );
-		$data = $cache->delete( $key );
+		// Purge caches as well
+		foreach ( $sizes as $size ) {
+			$key = $cache->makeKey( 'user', 'profile', 'avatar', $uid, $size );
+			$cache->delete( $key );
+		}
 
 		$this->mExtension = $ext;
 		return Status::newGood();
