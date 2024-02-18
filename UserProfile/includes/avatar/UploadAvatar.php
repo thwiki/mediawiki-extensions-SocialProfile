@@ -2,68 +2,74 @@
 
 use MediaWiki\MediaWikiServices;
 
-class UploadAvatar extends UploadFromFile {
+class UploadAvatar extends UploadFromFile
+{
 	public $mExtension;
 	public $avatarUploadDirectory;
 
-	function createThumbnail( $imageSrc, $imageInfo, $imgDest, $thumbWidth ) {
-		global $wgUseImageMagick, $wgImageMagickConvertCommand;
+	function createThumbnail($imageSrc, $imageInfo, $imgDest, $thumbWidth)
+	{
+		global $wgUseImageMagick, $wgImageMagickConvertCommand, $wgVipsCommand;
 
-		if ( $wgUseImageMagick ) { // ImageMagick is enabled
-			list( $origWidth, $origHeight, $typeCode ) = $imageInfo;
+		if ($wgUseImageMagick) { // ImageMagick is enabled
+			list($origWidth, $origHeight, $typeCode) = $imageInfo;
 
-			if ( $origWidth < $thumbWidth ) {
+			if ($origWidth < $thumbWidth) {
 				$thumbWidth = $origWidth;
 			}
-			$thumbHeight = ( $thumbWidth * $origHeight / $origWidth );
+			$thumbHeight = ($thumbWidth * $origHeight / $origWidth);
 			$border = ' -bordercolor white  -border  0x';
-			if ( $thumbHeight < $thumbWidth ) {
-				$border = ' -bordercolor white  -border  0x' . ( ( $thumbWidth - $thumbHeight ) / 2 );
+			if ($thumbHeight < $thumbWidth) {
+				$border = ' -bordercolor white  -border  0x' . (($thumbWidth - $thumbHeight) / 2);
 			}
-			if ( $typeCode == 2 ) {
+			if ($typeCode == 2) {
+				/*
 				exec(
 					$wgImageMagickConvertCommand . ' convert -size ' . $thumbWidth . 'x' . $thumbWidth .
 					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
-					$thumbWidth . '+0+0   -quality 100 ' . $border . ' ' .
+					$thumbWidth . '+0+0   -quality 70 ' . $border . ' ' .
 					$imageSrc . ' ' . $this->avatarUploadDirectory . '/' . $imgDest . '.jpg'
 				);
-			}
-			if ( $typeCode == 1 ) {
+				*/
+				$dimension = max($origWidth, $origHeight);
 				exec(
-					$wgImageMagickConvertCommand . ' convert -size ' . $thumbWidth . 'x' . $thumbWidth .
-					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
-					$thumbWidth . '+0+0 ' . $imageSrc . ' ' . $border . ' ' .
-					$this->avatarUploadDirectory . '/' . $imgDest . '.gif'
+					$wgVipsCommand . ' gravity ' . $imageSrc . ' ' . $imageSrc . '.v ' . ' centre ' . $dimension . ' ' . $dimension .
+					' --background "255 255 255"'
 				);
-			}
-			if ( $typeCode == 3 ) {
 				exec(
-					$wgImageMagickConvertCommand . ' convert -size ' . $thumbWidth . 'x' . $thumbWidth .
-					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
-					$thumbWidth . '+0+0 ' . $imageSrc . ' ' .
-					$this->avatarUploadDirectory . '/' . $imgDest . '.png'
+					$wgVipsCommand . 'thumbnail ' . $imageSrc . '.v -s ' . $thumbWidth . 'x' . $thumbWidth .
+					' -o ' . $this->avatarUploadDirectory . '/' . $imgDest . '.jpg[Q=90,optimize_coding,strip=true,interlace]'
 				);
+				unlink($imageSrc . '.v');
+			}
+			if ($typeCode == 3) {
+				$dimension = max($origWidth, $origHeight);
+				exec(
+					$wgVipsCommand . ' gravity ' . $imageSrc . ' ' . $imageSrc . '.v ' . ' centre ' . $dimension . ' ' . $dimension .
+					' --background "255 255 255 0"'
+				);
+				exec(
+					$wgVipsCommand . 'thumbnail ' . $imageSrc . '.v -s ' . $thumbWidth . 'x' . $thumbWidth .
+					' -o ' . $this->avatarUploadDirectory . '/' . $imgDest . '.png[compression=9,effort=10,strip=true]'
+				);
+				unlink($imageSrc . '.v');
 			}
 		} else { // ImageMagick is not enabled, so fall back to PHP's GD library
 			// Get the image size, used in calculations later.
-			list( $origWidth, $origHeight, $typeCode ) = getimagesize( $imageSrc );
+			list($origWidth, $origHeight, $typeCode) = getimagesize($imageSrc);
 
-			switch ( $typeCode ) {
-				case '1':
-					$fullImage = imagecreatefromgif( $imageSrc );
-					$ext = 'gif';
-					break;
+			switch ($typeCode) {
 				case '2':
-					$fullImage = imagecreatefromjpeg( $imageSrc );
+					$fullImage = imagecreatefromjpeg($imageSrc);
 					$ext = 'jpg';
 					break;
 				case '3':
-					$fullImage = imagecreatefrompng( $imageSrc );
+					$fullImage = imagecreatefrompng($imageSrc);
 					$ext = 'png';
 					break;
 			}
 
-			$scale = ( $thumbWidth / $origWidth );
+			$scale = ($thumbWidth / $origWidth);
 
 			// Create our thumbnail size, so we can resize to this, and save it.
 			$tnImage = imagecreatetruecolor(
@@ -75,7 +81,10 @@ class UploadAvatar extends UploadFromFile {
 			imagecopyresampled(
 				$tnImage,
 				$fullImage,
-				0, 0, 0, 0,
+				0,
+				0,
+				0,
+				0,
 				$origWidth * $scale,
 				$origHeight * $scale,
 				$origWidth,
@@ -83,17 +92,15 @@ class UploadAvatar extends UploadFromFile {
 			);
 
 			// Create a new image thumbnail.
-			if ( $typeCode == 1 ) {
-				imagegif( $tnImage, $imageSrc );
-			} elseif ( $typeCode == 2 ) {
-				imagejpeg( $tnImage, $imageSrc );
-			} elseif ( $typeCode == 3 ) {
-				imagepng( $tnImage, $imageSrc );
+			if ($typeCode == 2) {
+				imagejpeg($tnImage, $imageSrc);
+			} elseif ($typeCode == 3) {
+				imagepng($tnImage, $imageSrc);
 			}
 
 			// Clean up.
-			imagedestroy( $fullImage );
-			imagedestroy( $tnImage );
+			imagedestroy($fullImage);
+			imagedestroy($tnImage);
 
 			// Copy the thumb
 			copy(
@@ -116,21 +123,19 @@ class UploadAvatar extends UploadFromFile {
 	 *
 	 * @return Status
 	 */
-	public function performUpload( $comment, $pageText, $watch, $user, $tags = [], ?string $watchlistExpiry = null ) {
+	public function performUpload($comment, $pageText, $watch, $user, $tags = [], ?string $watchlistExpiry = null)
+	{
 		global $wgUploadDirectory, $wgAvatarKey, $wgTmpDirectory;
 
 		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$this->avatarUploadDirectory = $wgUploadDirectory . '/avatars';
 
-		$imageInfo = $this->mTempPath !== '' ? getimagesize( $this->mTempPath ) : null;
-		if ( is_null( $imageInfo ) || empty( $imageInfo[2] ) ) {
-			return Status::newFatal( 'empty-file' );
+		$imageInfo = $this->mTempPath !== '' ? getimagesize($this->mTempPath) : null;
+		if (is_null($imageInfo) || empty($imageInfo[2])) {
+			return Status::newFatal('empty-file');
 		}
 
-		switch ( $imageInfo[2] ) {
-			case 1:
-				$ext = 'gif';
-				break;
+		switch ($imageInfo[2]) {
 			case 2:
 				$ext = 'jpg';
 				break;
@@ -138,93 +143,79 @@ class UploadAvatar extends UploadFromFile {
 				$ext = 'png';
 				break;
 			default:
-				return Status::newFatal( 'filetype-banned' );
+				return Status::newFatal('filetype-banned');
 		}
 
 		$dest = $this->avatarUploadDirectory;
 
 		$uid = $user->getId();
-		$avatar = new wAvatar( $uid, 'l' );
+		$avatar = new wAvatar($uid, 'l');
 		// If this is the user's first custom avatar, update statistics (in
 		// case if we want to give out some points to the user for uploading
 		// their first avatar)
-		if ( $avatar->isDefault() ) {
-			$stats = new UserStatsTrack( $uid, $user->getName() );
-			$stats->incStatField( 'user_image' );
+		if ($avatar->isDefault()) {
+			$stats = new UserStatsTrack($uid, $user->getName());
+			$stats->incStatField('user_image');
 		}
 
-		$this->createThumbnail( $this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_l', 75 );
-		$this->createThumbnail( $this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_ml', 50 );
-		$this->createThumbnail( $this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_m', 30 );
-		$this->createThumbnail( $this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_s', 16 );
+		$this->createThumbnail($this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_l', 75);
+		$this->createThumbnail($this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_ml', 50);
+		$this->createThumbnail($this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_m', 30);
+		$this->createThumbnail($this->mTempPath, $imageInfo, $wgAvatarKey . '_' . $uid . '_s', 16);
 
-		if ( $ext != 'jpg' ) {
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.jpg' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.jpg' );
+		if ($ext != 'jpg') {
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.jpg')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.jpg');
 			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.jpg' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.jpg' );
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.jpg')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.jpg');
 			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.jpg' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.jpg' );
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.jpg')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.jpg');
 			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.jpg' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.jpg' );
-			}
-		}
-		if ( $ext != 'gif' ) {
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.gif' );
-			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.gif' );
-			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.gif' );
-			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.gif' );
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.jpg')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.jpg');
 			}
 		}
-		if ( $ext != 'png' ) {
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.png' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.png' );
+		if ($ext != 'png') {
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.png')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.png');
 			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.png' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.png' );
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.png')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.png');
 			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.png' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.png' );
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.png')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.png');
 			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.png' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.png' );
+			if (is_file($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.png')) {
+				unlink($wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.png');
 			}
 		}
 
 		$dest = $this->avatarUploadDirectory;
-		$sizes = [ 's', 'm', 'ml', 'l' ];
+		$sizes = ['s', 'm', 'ml', 'l'];
 
 		// Also delete any and all old versions of the user's _current_ avatar
 		// because the code in wAvatar#getAvatarImage assumes that there is only
 		// one current avatar (which, in all fairness, *is* a reasonable assumption)
-		foreach ( [ 'gif', 'jpg', 'png' ] as $fileExtension ) {
-			if ( $fileExtension === $ext ) {
+		foreach (['jpg', 'png'] as $fileExtension) {
+			if ($fileExtension === $ext) {
 				// Our brand new avatar; skip over it in order to _not_ delete it, obviously
 			} else {
 				// Delete every other avatar image for this user that exists in the
 				// avatars directory (usually <path to MW installation>/images/avatars)
-				foreach ( $sizes as $size ) {
-					if ( is_file( $dest . '/' . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension ) ) {
-						unlink( $dest . '/' . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension );
+				foreach ($sizes as $size) {
+					if (is_file($dest . '/' . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension)) {
+						unlink($dest . '/' . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension);
 					}
 				}
 			}
 		}
 
 		// Purge caches as well
-		foreach ( $sizes as $size ) {
-			$key = $cache->makeKey( 'user', 'profile', 'avatar', $uid, $size );
-			$cache->delete( $key );
+		foreach ($sizes as $size) {
+			$key = $cache->makeKey('user', 'profile', 'avatar', $uid, $size);
+			$cache->delete($key);
 		}
 
 		$this->mExtension = $ext;
@@ -237,7 +228,8 @@ class UploadAvatar extends UploadFromFile {
 	 *
 	 * @return array
 	 */
-	public function verifyUpload() {
+	public function verifyUpload()
+	{
 		// Need this for AbuseFilter/generic UploadBase suckage.
 		// Alternatively we could just comment out the stashing logic in
 		// ../specials/SpecialUploadAvatar.php, function showRecoverableUploadError()
@@ -247,9 +239,9 @@ class UploadAvatar extends UploadFromFile {
 		// doesn't use that variable per se, this stuff in this method is here just to
 		// keep AbuseFilter happy and such. (And who knows, perhaps some other things also
 		// blindly assume that mFileProps is always set...)
-		$mwProps = new MWFileProps( MediaWikiServices::getInstance()->getMimeAnalyzer() );
-		$this->mFileProps = $mwProps->getPropsFromPath( $this->mTempPath, $this->mFinalExtension );
-		return [ 'status' => self::OK ];
+		$mwProps = new MWFileProps(MediaWikiServices::getInstance()->getMimeAnalyzer());
+		$this->mFileProps = $mwProps->getPropsFromPath($this->mTempPath, $this->mFinalExtension);
+		return ['status' => self::OK];
 	}
 
 	/**
@@ -257,8 +249,9 @@ class UploadAvatar extends UploadFromFile {
 	 *
 	 * @return Title
 	 */
-	public function getTitle() {
-		return Title::makeTitle( NS_FILE, 'Avatar-placeholder' . uniqid() . '.jpg' );
+	public function getTitle()
+	{
+		return Title::makeTitle(NS_FILE, 'Avatar-placeholder' . uniqid() . '.jpg');
 	}
 
 	/**
@@ -267,7 +260,8 @@ class UploadAvatar extends UploadFromFile {
 	 * @param User|null $user Ignored; required for type fit with upstream.
 	 * @return array
 	 */
-	public function checkWarnings( $user = null ) {
+	public function checkWarnings($user = null)
+	{
 		return [];
 	}
 }
