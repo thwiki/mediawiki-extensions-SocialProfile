@@ -138,6 +138,31 @@ class UserProfilePage extends Article {
 			return '';
 		}
 
+		$block = $this->profileOwner->getBlock();
+		if ( $block !== null ) {
+			if ( $this->mPage->exists() ) {
+				// Show log extract if the user is sitewide blocked or is partially
+				// blocked and not allowed to edit their user page or user talk page
+				LogEventsList::showLogExtract(
+					$out,
+					'block',
+					MediaWikiServices::getInstance()->getNamespaceInfo()->getCanonicalName( NS_USER ) . ':' .
+						$block->getTarget(),
+					'',
+					[
+						'lim' => 1,
+						'showIfEmpty' => false,
+						'msgKey' => [
+							'blocked-notice-logextract',
+							$this->profileOwner->getName() # Support GENDER in notice
+						]
+					]
+				);
+			}
+			parent::view();
+			return '';
+		}
+
 		// Left side
 		$out->addHTML( '<div id="user-page-left" class="clearfix">' );
 
