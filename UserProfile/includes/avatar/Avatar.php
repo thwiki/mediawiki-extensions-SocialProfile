@@ -43,7 +43,7 @@ class wAvatar {
 	/**
 	 * Fetches the avatar image's name from the filesystem
 	 *
-	 * @return string Avatar image's file name i.e. default_l.gif or wikidb_3_l.jpg;
+	 * @return string Avatar image's file name i.e. default_l.jpg or wikidb_3_l.jpg;
 	 * - First part for non-default images is the database name
 	 * - Second part is the user's ID number
 	 * - Third part is the letter for image size (s, m, ml or l)
@@ -61,7 +61,7 @@ class wAvatar {
 		} else {
 			$files = glob( $wgUploadDirectory . '/avatars/' . $wgAvatarKey . '_' . $this->user_id . '_' . $this->avatar_size . "*" );
 			if ( !isset( $files[0] ) || !$files[0] ) {
-				$avatar_filename = 'default_' . $this->avatar_size . '.gif';
+				$avatar_filename = 'default_' . $this->avatar_size . '.jpg';
 			} else {
 				$avatar_filename = basename( $files[0] ) . '?r=' . filemtime( $files[0] );
 			}
@@ -76,11 +76,11 @@ class wAvatar {
 	 * @return string
 	 */
 	public function getAvatarUrlPath(): string {
-		global $wgUploadBaseUrl, $wgUploadPath;
+		global $wgAvatarPath, $wgUploadBaseUrl, $wgUploadPath;
 
-		$uploadPath = $wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath;
+		$uploadPath = $wgAvatarPath ? $wgAvatarPath : (($wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath) . '/avatars/');
 
-		return "{$uploadPath}/avatars/{$this->getAvatarImage()}";
+		return $uploadPath . $this->getAvatarImage();
 	}
 
 	/**

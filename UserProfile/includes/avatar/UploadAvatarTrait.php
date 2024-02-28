@@ -13,7 +13,7 @@ trait UploadAvatarTrait {
 	public $avatarUploadDirectory;
 
 	function createThumbnail( $imageSrc, $imageInfo, $imgDest, $thumbWidth ) {
-		global $wgUseImageMagick, $wgImageMagickConvertCommand;
+		global $wgUseImageMagick, $wgImageMagickConvertCommand, $wgVipsCommand;
 
 		if ( $wgUseImageMagick ) { // ImageMagick is enabled
 			list( $origWidth, $origHeight, $typeCode ) = $imageInfo;
@@ -27,38 +27,34 @@ trait UploadAvatarTrait {
 				$border = ' -bordercolor white  -border  0x' . ( ( $thumbWidth - $thumbHeight ) / 2 );
 			}
 			if ( $typeCode == 2 ) {
+				$dimension = max($origWidth, $origHeight);
 				exec(
-					$wgImageMagickConvertCommand . ' -size ' . $thumbWidth . 'x' . $thumbWidth .
-					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
-					$thumbWidth . '+0+0   -quality 100 ' . $border . ' ' .
-					$imageSrc . ' ' . $this->avatarUploadDirectory . '/' . $imgDest . '.jpg'
+					$wgVipsCommand . ' gravity ' . $imageSrc . ' ' . $imageSrc . '.v ' . ' centre ' . $dimension . ' ' . $dimension .
+					' --background "255 255 255"'
 				);
-			}
-			if ( $typeCode == 1 ) {
 				exec(
-					$wgImageMagickConvertCommand . ' -size ' . $thumbWidth . 'x' . $thumbWidth .
-					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
-					$thumbWidth . '+0+0 ' . $imageSrc . ' ' . $border . ' ' .
-					$this->avatarUploadDirectory . '/' . $imgDest . '.gif'
+					$wgVipsCommand . 'thumbnail ' . $imageSrc . '.v -s ' . $thumbWidth . 'x' . $thumbWidth .
+					' -o ' . $this->avatarUploadDirectory . '/' . $imgDest . '.jpg[Q=90,optimize_coding,strip=true,interlace]'
 				);
+				unlink($imageSrc . '.v');
 			}
 			if ( $typeCode == 3 ) {
+				$dimension = max($origWidth, $origHeight);
 				exec(
-					$wgImageMagickConvertCommand . ' -size ' . $thumbWidth . 'x' . $thumbWidth .
-					' -resize ' . $thumbWidth . ' -crop ' . $thumbWidth . 'x' .
-					$thumbWidth . '+0+0 ' . $imageSrc . ' ' .
-					$this->avatarUploadDirectory . '/' . $imgDest . '.png'
+					$wgVipsCommand . ' gravity ' . $imageSrc . ' ' . $imageSrc . '.v ' . ' centre ' . $dimension . ' ' . $dimension .
+					' --background "255 255 255 0"'
 				);
+				exec(
+					$wgVipsCommand . 'thumbnail ' . $imageSrc . '.v -s ' . $thumbWidth . 'x' . $thumbWidth .
+					' -o ' . $this->avatarUploadDirectory . '/' . $imgDest . '.png[compression=9,effort=10,strip=true]'
+				);
+				unlink($imageSrc . '.v');
 			}
 		} else { // ImageMagick is not enabled, so fall back to PHP's GD library
 			// Get the image size, used in calculations later.
 			list( $origWidth, $origHeight, $typeCode ) = getimagesize( $imageSrc );
 
 			switch ( $typeCode ) {
-				case '1':
-					$fullImage = imagecreatefromgif( $imageSrc );
-					$ext = 'gif';
-					break;
 				case '2':
 					$fullImage = imagecreatefromjpeg( $imageSrc );
 					$ext = 'jpg';
@@ -89,9 +85,7 @@ trait UploadAvatarTrait {
 			);
 
 			// Create a new image thumbnail.
-			if ( $typeCode == 1 ) {
-				imagegif( $tnImage, $imageSrc );
-			} elseif ( $typeCode == 2 ) {
+			if ( $typeCode == 2 ) {
 				imagejpeg( $tnImage, $imageSrc );
 			} elseif ( $typeCode == 3 ) {
 				imagepng( $tnImage, $imageSrc );
@@ -142,9 +136,6 @@ trait UploadAvatarTrait {
 		}
 
 		switch ( $imageInfo[2] ) {
-			case 1:
-				$ext = 'gif';
-				break;
 			case 2:
 				$ext = 'jpg';
 				break;
@@ -187,20 +178,6 @@ trait UploadAvatarTrait {
 				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.jpg' );
 			}
 		}
-		if ( $ext != 'gif' ) {
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.gif' );
-			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_m.gif' );
-			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_ml.gif' );
-			}
-			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.gif' ) ) {
-				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_l.gif' );
-			}
-		}
 		if ( $ext != 'png' ) {
 			if ( is_file( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.png' ) ) {
 				unlink( $wgTmpDirectory . '/' . $wgAvatarKey . '_' . $uid . '_s.png' );
@@ -221,7 +198,7 @@ trait UploadAvatarTrait {
 		// Also delete any and all old versions of the user's _current_ avatar
 		// because the code in wAvatar#getAvatarImage assumes that there is only
 		// one current avatar (which, in all fairness, *is* a reasonable assumption)
-		foreach ( [ 'gif', 'jpg', 'png' ] as $fileExtension ) {
+		foreach ( [ 'jpg', 'png' ] as $fileExtension ) {
 			if ( $fileExtension === $ext ) {
 				// Our brand new avatar; skip over it in order to _not_ delete it, obviously
 			} else {

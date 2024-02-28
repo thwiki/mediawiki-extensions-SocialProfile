@@ -379,6 +379,12 @@ class UserRelationship {
 
 		// must delete record for each user involved in relationship
 		$dbw = wfGetDB( DB_MASTER );
+		$rel_type = (int)($dbw->selectField(
+			'user_relationship',
+			'r_type',
+			[ 'r_actor' => $user1->getActorId(), 'r_actor_relation' => $user2->getActorId() ],
+			__METHOD__
+		));
 		$dbw->delete(
 			'user_relationship',
 			[ 'r_actor' => $user1->getActorId(), 'r_actor_relation' => $user2->getActorId() ],
@@ -397,7 +403,7 @@ class UserRelationship {
 		$cache->delete( $cache->makeKey( 'relationship', 'profile', 'actor_id', "{$user2->getActorId()}-2" ) );
 
 		// RelationshipRemovedByUserID hook
-		Hooks::run( 'RelationshipRemovedByUserID', [ $user1, $user2 ] );
+		Hooks::run( 'RelationshipRemovedByUserID', [ $user1, $user2, $rel_type ] );
 
 		// Update social statistics for both users
 		$stats = new UserStatsTrack( $user1->getActorId() );
