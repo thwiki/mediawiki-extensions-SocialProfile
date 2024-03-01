@@ -147,7 +147,7 @@ class UserProfilePage extends Article {
 					$out,
 					'block',
 					MediaWikiServices::getInstance()->getNamespaceInfo()->getCanonicalName( NS_USER ) . ':' .
-						$block->getTarget(),
+						$block->getTargetName(),
 					'',
 					[
 						'lim' => 1,
