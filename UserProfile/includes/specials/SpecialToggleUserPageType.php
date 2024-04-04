@@ -126,6 +126,7 @@ class SpecialToggleUserPage extends UnlistedSpecialPage {
 			$user_wiki = $wikiPageFactory->newFromTitle( $user_wiki_title );
 		} else {
 			$wikiPage = new WikiPage( $article );
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod
 			$user_wiki = WikiPage::factory( $user_wiki_title );
 		}
 
@@ -136,10 +137,11 @@ class SpecialToggleUserPage extends UnlistedSpecialPage {
 				// MW 1.36+
 				$user_wiki->doUserEditContent(
 					ContentHandler::makeContent( $user_page_content, $user_wiki_title ),
-					$article->getContext()->getUser(),
+					$user,
 					'import user wiki'
 				);
 			} else {
+				// @phan-suppress-next-line PhanUndeclaredMethod Removed in MW 1.41
 				$user_wiki->doEditContent(
 					ContentHandler::makeContent( $user_page_content, $user_wiki_title ),
 					'import user wiki'
