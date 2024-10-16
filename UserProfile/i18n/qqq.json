@@ -11,7 +11,8 @@
 			"Shirayuki",
 			"The Evil IP address",
 			"Translationista",
-			"Umherirrender"
+			"Umherirrender",
+			"Jack Phoenix"
 		]
 	},
 	"editprofile": "Page title of Special:EditProfile, the special page which allows privileged users (usually admins, but not always) to edit other users' social profiles; generally speaking users can only edit their own social profiles, but it might be necessary for admins to be able to edit others' profiles to e.g. remove spam or personal attacks, etc.",
@@ -222,8 +223,8 @@
 	"avatarlogpage": "Title of the user avatar log, Special:Log/avatar",
 	"avatarlogpagetext": "Description of the user avatar log, Special:Log/avatar, shown on that very page.",
 	"avatarlogentry": "{{notranslate}}",
-	"user-profile-picture-log-entry": "User avatar log, Special:Log/profile, entry",
-	"user-profile-picture-log-delete-entry": "User avatar log, Special:Log/profile, entry for when an avatar was deleted",
+	"user-profile-picture-log-entry": "User avatar log, Special:Log/avatar, entry",
+	"user-profile-picture-log-delete-entry": "User avatar log, Special:Log/avatar, entry for when an avatar was deleted",
 	"user-profile-remove-avatar": "Shown on social profile pages as a link title below the user's avatar if the user has uploaded a custom avatar; clicking on this link will take the user to the Special:RemoveAvatar page, where they are able to remove their avatar.\n{{identical|Remove}}",
 	"userprofile-country-list": "{{notranslate}}\nCountry drop-down list, shown on Special:UpdateProfile and Special:EditProfile, allowing users to choose the country where they currently reside as well as their home country",
 	"right-avatarremove": "{{doc-right|avatarremove}}",
@@ -236,7 +237,7 @@
 	"action-populate-user-profiles": "{{doc-action|populate-user-profiles}}",
 	"apihelp-socialprofile-userprofileprivacy-description": "{{doc-apihelp-description|socialprofile-userprofileprivacy}}",
 	"apihelp-socialprofile-userprofileprivacy-summary": "{{doc-apihelp-summary|socialprofile-userprofileprivacy}}",
-	"apihelp-socialprofile-userprofileprivacy-param-method": "{{doc-apihelp-param|socialprofile-userprofileprivacy|method}}",
+	"apihelp-socialprofile-userprofileprivacy-param-method": "{{doc-important|Do not translate \"get\" or \"set\".}}\n{{doc-apihelp-param|socialprofile-userprofileprivacy|method}}",
 	"apihelp-socialprofile-userprofileprivacy-param-field_key": "{{doc-apihelp-param|socialprofile-userprofileprivacy|field_key}}",
 	"apihelp-socialprofile-userprofileprivacy-param-privacy": "{{doc-apihelp-param|socialprofile-userprofileprivacy|privacy}}",
 	"apihelp-socialprofile-userprofileprivacy-param-tuid": "{{doc-apihelp-param|socialprofile-userprofileprivacy|tuid}}",
