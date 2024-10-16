@@ -117,7 +117,7 @@ trait UploadAvatarTrait {
 	 * @return Status
 	 */
 	public function performUpload( $comment, $pageText, $watch, $user, $tags = [], ?string $watchlistExpiry = null ) {
-		global $wgUploadDirectory, $wgAvatarKey, $wgTmpDirectory;
+		global $wgUploadDirectory, $wgAvatarKey, $wgTmpDirectory, $wgAvatarPath, $wgUploadBaseUrl, $wgUploadPath;
 
 		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 
@@ -219,6 +219,18 @@ trait UploadAvatarTrait {
 		}
 
 		$this->mExtension = $ext;
+
+		$uploadPath = $wgAvatarPath ? $wgAvatarPath : (($wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath) . '/avatars/');
+		$purgeUrls = [];
+		foreach ( [ 'jpg', 'png' ] as $fileExtension ) {
+			// Add every avatar image for this user to the purge url list
+			foreach ( $sizes as $size ) {
+				$purgeUrls[] =  $uploadPath . $wgAvatarKey . '_' . $uid . '_' . $size . '.' . $fileExtension;
+			}
+		}
+		$file = UnregisteredLocalFile::newFromPath($dest . '/' . $wgAvatarKey . '_' . $uid . '_l.' . $ext, false);
+		$this->getHookRunner()->onLocalFilePurgeThumbnails( $file, false, $purgeUrls );
+
 		return Status::newGood();
 	}
 

@@ -118,8 +118,9 @@ class SpecialUploadAvatar extends SpecialUpload {
 	 * @param string $ext File extension (gif, jpg or png)
 	 */
 	private function showSuccess( $ext ) {
-		global $wgAvatarKey, $wgUploadBaseUrl, $wgUploadPath, $wgUploadAvatarInRecentChanges;
+		global $wgAvatarKey, $wgAvatarPath, $wgUploadBaseUrl, $wgUploadPath, $wgUploadAvatarInRecentChanges;
 
+		$ext = 'jpg';
 		$uploadPath = $wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath;
 
 		$user = $this->getUser();
@@ -137,6 +138,7 @@ class SpecialUploadAvatar extends SpecialUpload {
 
 		$uid = $user->getId();
 		$ts = rand();
+		$uploadPath = $wgAvatarPath ? $wgAvatarPath : (($wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath) . '/avatars/');
 
 		$output = UserProfile::getEditProfileNav( $this->msg( 'user-profile-section-picture' )->plain() );
 		$output .= '<div class="profile-info">';
@@ -150,7 +152,7 @@ class SpecialUploadAvatar extends SpecialUpload {
 				$this->msg( 'user-profile-picture-large' )->escaped() .
 			'</td>
 			<td class="image-cell">
-				<img src="' . $uploadPath . '/avatars/' . $wgAvatarKey . '_' . $uid . '_l.' . $ext . '?ts=' . $ts . '" alt="" />
+				<img src="' . $uploadPath . $wgAvatarKey . '_' . $uid . '_l.' . $ext . '?ts=' . $ts . '" alt="" />
 			</td>
 		</tr>';
 		$output .= '<tr>
@@ -158,7 +160,7 @@ class SpecialUploadAvatar extends SpecialUpload {
 				$this->msg( 'user-profile-picture-medlarge' )->escaped() .
 			'</td>
 			<td class="image-cell">
-				<img src="' . $uploadPath . '/avatars/' . $wgAvatarKey . '_' . $uid . '_ml.' . $ext . '?ts=' . $ts . '" alt="" />
+				<img src="' . $uploadPath . $wgAvatarKey . '_' . $uid . '_ml.' . $ext . '?ts=' . $ts . '" alt="" />
 			</td>
 		</tr>';
 		$output .= '<tr>
@@ -166,7 +168,7 @@ class SpecialUploadAvatar extends SpecialUpload {
 				$this->msg( 'user-profile-picture-medium' )->escaped() .
 			'</td>
 			<td class="image-cell">
-				<img src="' . $uploadPath . '/avatars/' . $wgAvatarKey . '_' . $uid . '_m.' . $ext . '?ts=' . $ts . '" alt="" />
+				<img src="' . $uploadPath . $wgAvatarKey . '_' . $uid . '_m.' . $ext . '?ts=' . $ts . '" alt="" />
 			</td>
 		</tr>';
 		$output .= '<tr>
@@ -174,7 +176,7 @@ class SpecialUploadAvatar extends SpecialUpload {
 				$this->msg( 'user-profile-picture-small' )->escaped() .
 			'</td>
 			<td class="image-cell">
-				<img src="' . $uploadPath . '/avatars/' . $wgAvatarKey . '_' . $uid . '_s.' . $ext . '?ts=' . $ts . '" alt="" />
+				<img src="' . $uploadPath . $wgAvatarKey . '_' . $uid . '_s.' . $ext . '?ts=' . $ts . '" alt="" />
 			</td>
 		</tr>';
 		$output .= '<tr>
@@ -328,20 +330,21 @@ class SpecialUploadAvatar extends SpecialUpload {
 	 * @return string|void HTML (img tag) if the user has a custom avatar, nothing if they don't
 	 */
 	function getAvatar( $size ) {
-		global $wgAvatarKey, $wgUploadDirectory, $wgUploadBaseUrl, $wgUploadPath;
+		global $wgAvatarKey, $wgUploadDirectory, $wgUploadBaseUrl, $wgUploadPath, $wgAvatarPath;
 
-		$uploadPath = $wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath;
+		$uploadPath = $wgAvatarPath ? $wgAvatarPath : (($wgUploadBaseUrl ? $wgUploadBaseUrl . $wgUploadPath : $wgUploadPath) . '/avatars/');
 
 		$files = glob(
 			$wgUploadDirectory . '/avatars/' . $wgAvatarKey . '_' .
 			$this->getUser()->getId() . '_' . $size . '*'
 		);
 		if ( isset( $files[0] ) && $files[0] ) {
-			return "<img src=\"{$uploadPath}/avatars/" .
+			$url = $uploadPath . pathinfo( $files[0], PATHINFO_FILENAME ) . '.jpg';
+			return "<img src=\"{$url}" .
 				// Use a cache buster variable to ensure we show the newly uploaded avatar
 				// should the user click on the "Upload a different avatar" button immediately
 				// after uploading an avatar (w/o the cachebuster variable it'll show the old avatar)
-				basename( $files[0] ) . '?r=' . (int)rand() . '" alt="" border="0" />';
+				'?r=' . (int)rand() . '" alt="" border="0" />';
 		}
 	}
 
