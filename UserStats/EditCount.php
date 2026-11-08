@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 /**
  * Protect against register_globals vulnerabilities.
  * This line must be present before any global variable is referenced.
@@ -68,7 +69,7 @@ function removeDeletedEdits( WikiPage $article, $user, $reason ) {
 		!is_array( $wgNamespacesForEditPoints ) ||
 		in_array( $article->getTitle()->getNamespace(), $wgNamespacesForEditPoints )
 	) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$MW139orEarlier = version_compare( MW_VERSION, '1.39', '<' );
 		if ( $MW139orEarlier ) {
@@ -117,11 +118,11 @@ function removeDeletedEdits( WikiPage $article, $user, $reason ) {
  * $wgNamespacesForEditPoints array that they've edited has been restored after
  * it was originally deleted.
  *
- * @param Title $title
+ * @param \MediaWiki\Title\Title $title
  * @param bool $new
  * @return bool true
  */
-function restoreDeletedEdits( Title $title, $new ) {
+function restoreDeletedEdits( \MediaWiki\Title\Title $title, $new ) {
 	global $wgNamespacesForEditPoints;
 
 	// only keep tally for allowable namespaces
@@ -129,7 +130,7 @@ function restoreDeletedEdits( Title $title, $new ) {
 		!is_array( $wgNamespacesForEditPoints ) ||
 		in_array( $title->getNamespace(), $wgNamespacesForEditPoints )
 	) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$MW139orEarlier = version_compare( MW_VERSION, '1.39', '<' );
 		if ( $MW139orEarlier ) {

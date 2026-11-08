@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 /**
  * @file
  * @ingroup Maintenance
@@ -65,7 +66,7 @@ class MigrateOldUserPointsMonthlyUserColumnToActor extends LoggedUpdateMaintenan
 		);
 		foreach ( $res as $row ) {
 			$user = User::newFromId( $row->up_user_id );
-			$actorId = MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
+			$actorId = \MediaWiki\MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
 			$dbw->update(
 				'user_points_monthly',
 				[

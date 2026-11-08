@@ -36,7 +36,7 @@ class UserSystemMessage {
 	 */
 	public function addMessage( $user, $type = 0, $message ) {
 		$actorId = $user->getActorId();
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$dbw->insert(
 			'user_system_messages',
@@ -55,7 +55,7 @@ class UserSystemMessage {
 	 * @param int $um_id Internal ID number of the message to delete
 	 */
 	public static function deleteMessage( $um_id ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->delete(
 			'user_system_messages',
 			[ 'um_id' => $um_id ],
@@ -72,7 +72,7 @@ class UserSystemMessage {
 	public function sendAdvancementNotificationEmail( $userTo, $level ) {
 		$userTo->load();
 
-		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+		$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 		$wantsEmail = ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ?
 			$userOptionsLookup->getBoolOption( $userTo, 'echo-subscriptions-email-social-level-up' ) :
 			$userOptionsLookup->getIntOption( $userTo, 'notifyhonorifics', 1 );

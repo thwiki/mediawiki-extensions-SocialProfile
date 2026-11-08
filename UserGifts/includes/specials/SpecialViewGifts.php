@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 /**
  * Special:ViewGifts -- a special page for viewing the list of user-to-user
@@ -74,10 +75,10 @@ class ViewGifts extends SpecialPage {
 		if ( !$user_name ) {
 			$user_name = $currentUser->getName();
 		}
-		$userIdentity = MediaWikiServices::getInstance()->getUserIdentityLookup()
+		$userIdentity = \MediaWiki\MediaWikiServices::getInstance()->getUserIdentityLookup()
 			->getUserIdentityByName( $user_name );
 		$user_id = $userIdentity ? $userIdentity->getId() : 0;
-		$user = Title::makeTitle( NS_USER, $user_name );
+		$user = \MediaWiki\Title\Title::makeTitle( NS_USER, $user_name );
 
 		/**
 		 * Error message for username that does not exist (from URL)

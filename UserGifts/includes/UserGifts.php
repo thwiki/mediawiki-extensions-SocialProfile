@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 
@@ -39,9 +40,9 @@ class UserGifts {
 	 * @return int
 	 */
 	public function sendGift( $user_to, $gift_id, $type, $message ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		// Ensure that if we received a $message longer than 255 only the first
 		// 255 characters will be INSERTed into the DB; any longer than that and
 		// we run into query errors if MySQL is running in strict mode
@@ -105,7 +106,7 @@ class UserGifts {
 		$gift = Gifts::getGift( $gift_id );
 		$user->load();
 
-		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+		$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 		$wantsEmail = ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ?
 			$userOptionsLookup->getBoolOption( $user, 'echo-subscriptions-email-social-gift' ) :
 			$userOptionsLookup->getIntOption( $user, 'notifygift', 1 );
@@ -144,27 +145,27 @@ class UserGifts {
 	}
 
 	public function clearAllUserGiftStatus() {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->update( 'user_gift',
 			/* SET */[ 'ug_status' => 0 ],
 			/* WHERE */[ 'ug_actor_to' => $this->user->getActorId() ],
 			__METHOD__
 		);
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$giftCount = new UserGiftCount( $cache, $this->user );
 		$giftCount->clear();
 	}
 
 	public function clearUserGiftStatus( $id ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->update( 'user_gift',
 			/* SET */[ 'ug_status' => 0 ],
 			/* WHERE */[ 'ug_id' => $id ],
 			__METHOD__
 		);
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$giftCount = new UserGiftCount( $cache, $this->user );
 		$giftCount->clear();
 	}
@@ -177,7 +178,7 @@ class UserGifts {
 	 * @return bool True if the user owns the gift, otherwise false
 	 */
 	public function doesUserOwnGift( $user, $ug_id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		return (bool)$dbr->selectField(
 			'user_gift',
 			'ug_actor_to',
@@ -195,7 +196,7 @@ class UserGifts {
 	 * @param int $ug_id ID number of the gift to delete
 	 */
 	public static function deleteGift( $ug_id ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->delete( 'user_gift', [ 'ug_id' => $ug_id ], __METHOD__ );
 	}
 
@@ -210,7 +211,7 @@ class UserGifts {
 			return false;
 		}
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$row = $dbr->selectRow(
 			[ 'user_gift', 'gift' ],
 			[
@@ -239,7 +240,7 @@ class UserGifts {
 	}
 
 	public function getUserGiftList( $type, $limit = 0, $page = 0 ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$params = [];
 
 		if ( $limit > 0 ) {
@@ -289,7 +290,7 @@ class UserGifts {
 	 * @param int $gift_id ID number of the gift that we're tracking
 	 */
 	private function incGiftGivenCount( $gift_id ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->update(
 			'gift',
 			[ 'gift_given_count=gift_given_count+1' ],
@@ -304,7 +305,7 @@ class UserGifts {
 	 * @return int Amount of gifts the specified user has
 	 */
 	public function getGiftCountByUsername() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		return (int)$dbr->selectField(
 			'user_gift',
 			'COUNT(*)',

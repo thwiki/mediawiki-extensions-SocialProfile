@@ -67,6 +67,6 @@ class UserGiftIcon {
 
 		$params = array_merge( $extraParams, $defaultParams );
 
-		return Html::element( 'img', $params, '' );
+		return \MediaWiki\Html\Html::element( 'img', $params, '' );
 	}
 }

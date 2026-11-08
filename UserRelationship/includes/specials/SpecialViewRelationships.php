@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 /**
  * A special page for viewing all relationships by type
  *

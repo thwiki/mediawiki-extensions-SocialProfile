@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Status\Status;
 
 use MediaWiki\Html\Html;
 use MediaWiki\Logger\LoggerFactory;
@@ -599,7 +601,7 @@ class GiftManagerLogo extends UnlistedSpecialPage {
 			$out->addHTML( $output );
 		}
 
-		$token = Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
+		$token = \MediaWiki\Html\Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
 
 		$out->addHTML( "
 	<form id='upload' method='post' enctype='multipart/form-data' action=\"\">
@@ -628,7 +630,7 @@ class GiftManagerLogo extends UnlistedSpecialPage {
 		global $wgDisableUploadScriptChecks, $wgVerifyMimeType, $wgMimeTypeBlacklist;
 
 		# magically determine mime type
-		$magic = \MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer();
+		$magic = \MediaWikiServices::getInstance()->getMimeAnalyzer();
 		$mime = $magic->guessMimeType( $tmpfile, false );
 
 		# check mime type, if desired

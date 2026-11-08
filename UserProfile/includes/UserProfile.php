@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
@@ -93,7 +94,7 @@ class UserProfile {
 	 * @return string
 	 */
 	public static function getCacheKey( $user ) {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		// @phan-suppress-next-line PhanUndeclaredMethod Removed in MW 1.41
 		return $cache->makeKey( 'user', 'profile', 'info', 'actor_id', $user->getActorId(), self::CACHE_VERSION );
@@ -105,7 +106,7 @@ class UserProfile {
 	 * @param UserIdentity $user User object for the desired user
 	 */
 	public static function clearCache( $user ) {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$cache->delete( self::getCacheKey( $user ) );
 	}
@@ -119,7 +120,7 @@ class UserProfile {
 	 * @return array
 	 */
 	public function getProfile() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$this->user->load();
 
@@ -131,7 +132,7 @@ class UserProfile {
 			$profile = $data;
 		} else {
 			wfDebug( "Got user profile info for {$this->user->getName()} from DB\n" );
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$row = $dbr->selectRow(
 				'user_profile',
 				'*',
@@ -147,7 +148,7 @@ class UserProfile {
 				$profile['user_page_type'] = 1;
 				$profile['actor'] = 0;
 			}
-			$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+			$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 			$showYOB = $userOptionsLookup->getIntOption( $this->user, 'showyearofbirth', (int)!isset( $row->up_birthday ) ) == 1;
 			$issetUpBirthday = $row->up_birthday ?? '';
 			$profile['location_city'] = $row->up_location_city ?? '';
@@ -198,6 +199,8 @@ class UserProfile {
 	 * @return string Formatted birthday, either 8 (with year) or 4 (without year) characters long
 	 */
 	function formatBirthday( $birthday, $showYear = true ) {
+		// [1.46 迁移] 恢复生产 1.39 的英文日期输出（1.46 上游改成返回 8/4 位数字，
+		// 站点的 UserProfilePage 未同步，导致生日显示错误）。
 		$dob = explode( '-', $birthday );
 		if ( count( $dob ) == 3 ) {
 			$month = $dob[1];
@@ -206,18 +209,14 @@ class UserProfile {
 				if ( $dob[1] == '00' && $dob[2] == '00' ) {
 					return '';
 				} else {
-					return $month . $day;
-					// old, woefully English-specific code:
-					// return date( 'F jS', mktime( 0, 0, 0, $month, $day ) );
+					return date( 'F jS', mktime( 0, 0, 0, (int)$month, (int)$day ) );
 				}
 			}
 			$year = $dob[0];
 			if ( $dob[0] == '00' && $dob[1] == '00' && $dob[2] == '00' ) {
 				return '';
 			} else {
-				return $year . $month . $day;
-				// old, woefully English-specific code:
-				// return date( 'F jS, Y', mktime( 0, 0, 0, $month, $day, $year ) );
+				return date( 'F jS, Y', mktime( 0, 0, 0, (int)$month, (int)$day, (int)$year ) );
 			}
 		}
 		return $birthday;
@@ -255,14 +254,14 @@ class UserProfile {
 	public static function getEditProfileNav( $current_nav ) {
 		$lines = explode( "\n", wfMessage( 'update_profile_nav' )->inContentLanguage()->text() );
 		$output = '<div class="profile-tab-bar">';
-		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+		$linkRenderer = \MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 
 		foreach ( $lines as $line ) {
 			if ( strpos( $line, '*' ) !== 0 ) {
 				continue;
 			} else {
 				$line = explode( '|', trim( $line, '* ' ), 2 );
-				$page = Title::newFromText( $line[0] );
+				$page = \MediaWiki\Title\Title::newFromText( $line[0] );
 				$link_text = $line[1];
 
 				// Maybe it's the name of a system message? (bug #30030)

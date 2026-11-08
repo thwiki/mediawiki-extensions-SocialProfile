@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -158,7 +159,7 @@ class GiveGift extends SpecialPage {
 				);
 
 				// clear the cache for the user profile gifts for this user
-				$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+				$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 				$cache->delete( $cache->makeKey( 'user', 'profile', 'gifts', 'actor_id', $this->userTo->getActorId() ) );
 
 				$key = $cache->makeKey( 'gifts', 'unique', 4 );
@@ -244,7 +245,7 @@ class GiveGift extends SpecialPage {
 		// NoJS TODO: these buttons should not require JS to work; might need to change
 		// them into styled <a>'s or something?
 		$html = '<div class="g-buttons">
-			<input type="button" class="site-button" value="' . $this->msg( 'mainpage' )->escaped() . '" size="20" onclick="window.location=\'' . htmlspecialchars( Title::newMainPage()->getFullURL() ) . '\'" />
+			<input type="button" class="site-button" value="' . $this->msg( 'mainpage' )->escaped() . '" size="20" onclick="window.location=\'' . htmlspecialchars( \MediaWiki\Title\Title::newMainPage()->getFullURL() ) . '\'" />
 			<input type="button" class="site-button" value="' . $this->msg( 'g-your-profile' )->escaped() . '" size="20" onclick="window.location=\'' . htmlspecialchars( $this->getUser()->getUserPage()->getFullURL() ) . '\'" />
 		</div>';
 		return $html;
@@ -265,7 +266,7 @@ class GiveGift extends SpecialPage {
 			return [];
 		}
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		// Autocomplete subpage as user list - public to allow caching
 		return $services->getUserNamePrefixSearch()->search(
 			UserNamePrefixSearch::AUDIENCE_PUBLIC, $user->getName(), $limit, $offset
@@ -352,7 +353,7 @@ class GiveGift extends SpecialPage {
 		$this->getOutput()->addModules( 'mediawiki.userSuggest' );
 
 		$output = '<form action="" method="get" enctype="multipart/form-data" name="gift">' .
-			Html::hidden( 'title', $this->getPageTitle() ) .
+			\MediaWiki\Html\Html::hidden( 'title', $this->getPageTitle() ) .
 			'<div class="g-message">' .
 				$this->msg( 'g-give-no-user-message' )->escaped() .
 			'</div>
@@ -449,11 +450,11 @@ class GiveGift extends SpecialPage {
 					$output .= '<div class="g-describe">' . htmlspecialchars( $gift['gift_description'] ) . '</div>';
 				}
 				// NoJS checkbox for selecting a gift
-				$output .= Html::check( "nojs-gift-{$gift['id']}", false, [
+				$output .= \MediaWiki\Html\Html::check( "nojs-gift-{$gift['id']}", false, [
 					'class' => 'g-give-checkbox',
 					'id' => "nojs-gift-{$gift['id']}"
 				] );
-				$output .= Html::label( $this->msg( 'g-give-this-gift' )->text(), "nojs-gift-{$gift['id']}" );
+				$output .= \MediaWiki\Html\Html::label( $this->msg( 'g-give-this-gift' )->text(), "nojs-gift-{$gift['id']}" );
 				$output .= '<div class="visualClear"></div>
 				</div>';
 				if ( $x == count( $gifts ) || ( $x != 1 && $x % $per_row == 0 ) ) {

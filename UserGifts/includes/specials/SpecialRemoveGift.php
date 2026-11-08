@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -66,7 +67,7 @@ class RemoveGift extends UnlistedSpecialPage {
 			$session->set( 'alreadysubmitted', true );
 
 			if ( $rel->doesUserOwnGift( $user, $this->gift_id ) == true ) {
-				$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+				$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 				$cache->delete( $cache->makeKey( 'user', 'profile', 'gifts', 'actor_id', $user->getActorId() ) );
 				$rel->deleteGift( $this->gift_id );
 			}
@@ -134,8 +135,8 @@ class RemoveGift extends UnlistedSpecialPage {
 		$output .= '</div>
 			<div class="visualClear"></div>
 			<div class="g-buttons">' .
-				Html::hidden( 'user', $userFrom->getName() ) .
-				Html::hidden( 'wpEditToken', $currentUser->getEditToken() ) .
+				\MediaWiki\Html\Html::hidden( 'user', $userFrom->getName() ) .
+				\MediaWiki\Html\Html::hidden( 'wpEditToken', $currentUser->getEditToken() ) .
 				'<input type="submit" class="site-button" value="' . htmlspecialchars( $this->msg( 'g-remove' )->plain() ) . '" size="20" />
 				<input type="button" class="site-button" value="' . htmlspecialchars( $this->msg( 'cancel' )->plain() ) . '" size="20" onclick="history.go(-1)" />
 			</div>

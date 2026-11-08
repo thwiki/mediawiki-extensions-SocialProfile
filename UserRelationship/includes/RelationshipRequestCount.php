@@ -108,7 +108,7 @@ class RelationshipRequestCount {
 			'userName' => $this->user->getName()
 		] );
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$requestCount = 0;
 
 		$s = $dbr->selectRow(

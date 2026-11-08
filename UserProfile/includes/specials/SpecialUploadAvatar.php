@@ -260,8 +260,8 @@ class SpecialUploadAvatar extends SpecialUpload {
 		// @see https://phabricator.wikimedia.org/T32953
 		$user = $this->getUser();
 
-		$output .= Html::hidden( 'wpEditToken', $user->getEditToken(), [ 'id' => 'wpEditToken' ] ) . "\n";
-		$output .= Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() ) . "\n";
+		$output .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $user->getEditToken(), [ 'id' => 'wpEditToken' ] ) . "\n";
+		$output .= \MediaWiki\Html\Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() ) . "\n";
 
 		$canUploadByUrl = UploadFromUrl::isEnabled() && $user->isAllowed( 'upload_by_url' );
 		$selectedSourceType = strtolower( $this->getRequest()->getText( 'wpSourceType', 'file' ) );
@@ -283,7 +283,7 @@ class SpecialUploadAvatar extends SpecialUpload {
 			$output .= '<input name="wpSourceType" type="radio" id="wpSourceTypeFile" value="file"' .
 				( $selectedSourceType == 'file' ? ' checked=""' : '' ) . '>';
 		} else {
-			$output .= Html::hidden( 'wpSourceType', 'file', [ 'id' => 'wpSourceTypeFile' ] );
+			$output .= \MediaWiki\Html\Html::hidden( 'wpSourceType', 'file', [ 'id' => 'wpSourceTypeFile' ] );
 		}
 		$output .= '</td>
 		<td class="mw-input">

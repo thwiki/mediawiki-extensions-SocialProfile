@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 
@@ -53,8 +54,8 @@ class SystemGifts {
 	public function updateSystemGifts() {
 		global $wgOut;
 
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$stats = new UserStatsTrack( 1, '' );
 		$this->categories = array_flip( $this->categories );
 
@@ -133,7 +134,7 @@ class SystemGifts {
 	 * gift, else the gift's ID number
 	 */
 	public function doesUserHaveGift( $actorId, $gift_id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_system_gift',
 			[ 'sg_gift_id' ],
@@ -157,7 +158,7 @@ class SystemGifts {
 	 * @return int The inserted gift's ID number
 	 */
 	public function addGift( $name, $description, $category, $threshold ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insert(
 			'system_gift',
 			[
@@ -182,7 +183,7 @@ class SystemGifts {
 	 * @param int $threshold
 	 */
 	public function updateGift( $id, $name, $description, $category, $threshold ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->update(
 			'system_gift',
 			/* SET */[
@@ -197,7 +198,7 @@ class SystemGifts {
 	}
 
 	public function doesGiftExistForThreshold( $category, $threshold ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$awardCategory = 0;
 		if ( isset( $this->categories[$category] ) ) {
@@ -229,7 +230,7 @@ class SystemGifts {
 	 * the gift ID, its name, description, category, threshold
 	 */
 	static function getGift( $id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$row = $dbr->selectRow(
 			'system_gift',
 			[
@@ -257,7 +258,7 @@ class SystemGifts {
 	 * @return int The amount of all system gifts on the database
 	 */
 	static function getGiftCount() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$gift_count = 0;
 		$s = $dbr->selectRow(
 			'system_gift',

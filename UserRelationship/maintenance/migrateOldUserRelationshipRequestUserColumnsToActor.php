@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 /**
  * @file
  * @ingroup Maintenance
@@ -61,7 +62,7 @@ class MigrateOldUserRelationshipRequestUserColumnsToActor extends LoggedUpdateMa
 			);
 			foreach ( $res as $row ) {
 				$user = User::newFromId( $row->ur_user_id_from );
-				$actorId = MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
+				$actorId = \MediaWiki\MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
 				$dbw->update(
 					'user_relationship_request',
 					[
@@ -87,7 +88,7 @@ class MigrateOldUserRelationshipRequestUserColumnsToActor extends LoggedUpdateMa
 			);
 			foreach ( $res as $row ) {
 				$user = User::newFromId( $row->ur_user_id_to );
-				$actorId = MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
+				$actorId = \MediaWiki\MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
 				$dbw->update(
 					'user_relationship_request',
 					[

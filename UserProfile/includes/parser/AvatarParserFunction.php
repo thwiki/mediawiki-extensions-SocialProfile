@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 /**
  * Allows rendering an avatar based on a given

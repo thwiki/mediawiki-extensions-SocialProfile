@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 
@@ -59,7 +60,7 @@ class UserSystemGifts {
 			return '';
 		}
 
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insert(
 			'user_system_gift',
 			[
@@ -74,7 +75,7 @@ class UserSystemGifts {
 		self::incGiftGivenCount( $gift_id );
 
 		// Add to new gift count cache for receiving user
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$giftCount = new SystemGiftCount( $cache, $this->user );
 		$giftCount->clear();
 
@@ -119,7 +120,7 @@ class UserSystemGifts {
 		$gift = SystemGifts::getGift( $gift_id );
 		$this->user->load();
 
-		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+		$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 		$wantsEmail = ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ?
 			$userOptionsLookup->getBoolOption( $this->user, 'echo-subscriptions-email-social-award' ) :
 			$userOptionsLookup->getIntOption( $this->user, 'notifygift', 1 );
@@ -165,7 +166,7 @@ class UserSystemGifts {
 	 * @return bool True if the user has the gift, otherwise false
 	 */
 	public function doesUserHaveGift( $gift_id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_system_gift',
 			[ 'sg_status' ],
@@ -179,7 +180,7 @@ class UserSystemGifts {
 	}
 
 	public function clearUserGiftStatus( $id ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->update(
 			'user_system_gift',
 			[ 'sg_status' => 0 ],
@@ -187,7 +188,7 @@ class UserSystemGifts {
 			__METHOD__
 		);
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$giftCount = new SystemGiftCount( $cache, $this->user );
 		$giftCount->clear();
 	}
@@ -198,7 +199,7 @@ class UserSystemGifts {
 	 * @param int $ug_id Gift ID of the system gift that we're about to delete
 	 */
 	public static function deleteGift( $ug_id ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->delete(
 			'user_system_gift',
 			[ 'sg_id' => $ug_id ],
@@ -215,7 +216,7 @@ class UserSystemGifts {
 	 * @return array Array containing information about the system gift
 	 */
 	public static function getUserGift( $id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$row = $dbr->selectRow(
 			[ 'user_system_gift', 'system_gift', 'actor' ],
 			[
@@ -253,7 +254,7 @@ class UserSystemGifts {
 	 * @param int $giftId ID number of the system gift that we're tracking
 	 */
 	public static function incGiftGivenCount( $giftId ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->update(
 			'system_gift',
 			[ 'gift_given_count = gift_given_count + 1' ],
@@ -269,7 +270,7 @@ class UserSystemGifts {
 	 * @return int System gift count for the specified user
 	 */
 	public function getGiftCountByUsername( User $user ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$actorId = $user->getActorId();
 		$row = $dbr->selectRow(
 			'user_system_gift',

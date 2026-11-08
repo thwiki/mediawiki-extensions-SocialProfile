@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Content\ContentHandler;
 
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -90,9 +92,9 @@ class GenerateTopUsersReport extends SpecialPage {
 		// For grep: generatetopusersreport-confirm-monthly, generatetopusersreport-confirm-weekly
 		$form .= $this->msg( 'generatetopusersreport-confirm-' . $period )->escaped();
 		$form .= '<br />';
-		$form .= Html::hidden( 'period', $period ); // not sure if this is strictly needed but paranoia
-		$form .= Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
-		$form .= Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
+		$form .= \MediaWiki\Html\Html::hidden( 'period', $period ); // not sure if this is strictly needed but paranoia
+		$form .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
+		$form .= \MediaWiki\Html\Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
 		$form .= '</form>';
 		return $form;
 	}
@@ -119,7 +121,7 @@ class GenerateTopUsersReport extends SpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
-		$contLang = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
+		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
 
 		// Make sure that we are actually going to give out some extra points
 		// for weekly and/or monthly wins, depending on which report we're
@@ -153,7 +155,7 @@ class GenerateTopUsersReport extends SpecialPage {
 			throw new LogicException( "Period must be 'weekly' or 'monthly'" );
 		}
 
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		// Query the appropriate points table
 		$res = $dbw->select(
 			"user_points_{$period}",
@@ -293,12 +295,12 @@ class GenerateTopUsersReport extends SpecialPage {
 
 		// Create the Title object that represents the report page
 		// For grep: user-stats-report-weekly-page-title, user-stats-report-monthly-page-title
-		$title = Title::makeTitleSafe(
+		$title = \MediaWiki\Title\Title::makeTitleSafe(
 			NS_PROJECT,
 			$this->msg( "user-stats-report-{$period}-page-title", $period_title )->inContentLanguage()->plain()
 		);
 
-		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+		$page = \MediaWiki\MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
 		// If the article doesn't exist, create it!
 		// @todo Would there be any point in updating a pre-existing article?
 		// I think not, but...
@@ -314,11 +316,11 @@ class GenerateTopUsersReport extends SpecialPage {
 	 * Make the edit
 	 *
 	 * @param WikiPage $page
-	 * @param Title $title
+	 * @param \MediaWiki\Title\Title $title
 	 * @param string $period
 	 * @param string $pageContent
 	 */
-	private function createReportPage( WikiPage $page, Title $title, $period, $pageContent ) {
+	private function createReportPage( WikiPage $page, \MediaWiki\Title\Title $title, $period, $pageContent ) {
 		// Grab a user object to make the edit as
 		$user = User::newFromName( 'MediaWiki default' );
 		if ( $user->getId() === 0 ) {
@@ -342,7 +344,7 @@ class GenerateTopUsersReport extends SpecialPage {
 
 		$date = date( 'Y-m-d H:i:s' );
 		// Archive points from the weekly/monthly table into the archive table
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insertSelect(
 			'user_points_archive',
 			"user_points_{$period}",

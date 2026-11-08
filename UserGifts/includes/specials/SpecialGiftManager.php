@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 
@@ -156,7 +157,7 @@ class GiftManager extends SpecialPage {
 			return false;
 		}
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 
 		if (
 			$user->isAllowed( 'giftadmin' ) ||
@@ -184,7 +185,7 @@ class GiftManager extends SpecialPage {
 			return false;
 		}
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		$createdCount = Gifts::getCustomCreatedGiftCount( $user );
 
 		if (
@@ -248,7 +249,7 @@ class GiftManager extends SpecialPage {
 	 * @return string HTML
 	 */
 	private function renderPagination( int $total, int $perPage, int $page ) {
-		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+		$linkRenderer = \MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 		$pageTitle = $this->getPageTitle();
 
 		// Quick sanity check first...
@@ -343,7 +344,7 @@ class GiftManager extends SpecialPage {
 			return $this->displayGiftList();
 		}
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 
 		$form = '<div><b><a href="' . htmlspecialchars( $this->getPageTitle()->getFullURL() ) .
 			'">' . $this->msg( 'giftmanager-view' )->escaped() . '</a></b></div>';

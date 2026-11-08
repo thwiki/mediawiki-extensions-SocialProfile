@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Context\RequestContext;
 
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -80,7 +81,7 @@ class wAvatar {
 	public function getAvatarImage() {
 		global $wgAvatarKey;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$key = $cache->makeKey( 'user', 'profile', 'avatar', $this->user_id, $this->avatar_size );
 		$data = $cache->get( $key );
 
@@ -178,7 +179,7 @@ class wAvatar {
 
 		$params = array_merge( $extraParams, $defaultParams );
 
-		return Html::element( 'img', $params, '' );
+		return \MediaWiki\Html\Html::element( 'img', $params, '' );
 	}
 
 	/**

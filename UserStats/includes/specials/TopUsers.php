@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
@@ -17,7 +18,7 @@ class TopUsersPoints extends SpecialPage {
 	public function execute( $par ) {
 		global $wgUserStatsTrackWeekly, $wgUserStatsTrackMonthly, $wgUserLevels;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$linkRenderer = $this->getLinkRenderer();
 		$out = $this->getOutput();
 		$logger = LoggerFactory::getInstance( 'SocialProfile' );
@@ -53,7 +54,7 @@ class TopUsersPoints extends SpecialPage {
 			$params = [];
 			$params['ORDER BY'] = 'stats_total_points DESC';
 			$params['LIMIT'] = $count;
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				'user_stats',
 				[ 'stats_actor', 'stats_total_points' ],

@@ -25,7 +25,7 @@ class PurgeAvatarKeysFromMemcached extends Maintenance {
 	}
 
 	public function execute() {
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		$cache = $services->getMainWANObjectCache();
 		$userFactory = $services->getUserFactory();
 
@@ -69,7 +69,7 @@ class PurgeAvatarKeysFromMemcached extends Maintenance {
 			// avatar or not. This is still a lot faster than anything else because
 			// especially on a wiki farm
 			// (total amount of users) != (users who have edited the wiki and thus have a user_stats entry)
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				'user_stats',
 				'*',

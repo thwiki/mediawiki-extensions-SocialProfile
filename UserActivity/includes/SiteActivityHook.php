@@ -31,7 +31,7 @@ class SiteActivityHook {
 		// so that <siteactivity limit=5 /> will return 5 items instead of 4...
 		$fixedLimit = $limit + 1;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$key = $cache->makeKey( 'site_activity', 'all', $fixedLimit );
 		$data = $cache->get( $key );
 		$logger = LoggerFactory::getInstance( 'SocialProfile' );

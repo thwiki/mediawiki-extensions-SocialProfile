@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
@@ -93,7 +94,7 @@ class UserStatsTrack {
 	 * Checks if records for the given user are present in user_stats table and if not, adds them
 	 */
 	private function initStatsTrack() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_stats',
 			[ 'stats_actor' ],
@@ -110,7 +111,7 @@ class UserStatsTrack {
 	 * Adds a record for the given user into the user_stats table
 	 */
 	private function addStatRecord() {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insert(
 			'user_stats',
 			[
@@ -125,7 +126,7 @@ class UserStatsTrack {
 	 * Deletes cache entries
 	 */
 	public function clearCache() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		// clear stats cache for current user
 		$key = $cache->makeKey( 'user', 'stats', 'actor_id', $this->user->getActorId() );
@@ -142,9 +143,9 @@ class UserStatsTrack {
 	function incStatField( $field, $val = 1 ) {
 		global $wgUserStatsTrackWeekly, $wgUserStatsTrackMonthly;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		if ( !$this->user->isBot() && !$this->user->isAnon() && $this->stats_fields[$field] ) {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$dbw->update(
 				'user_stats',
 				[ $this->stats_fields[$field] . '=' . $this->stats_fields[$field] . "+{$val}" ],
@@ -208,7 +209,7 @@ class UserStatsTrack {
 		global $wgUserStatsTrackWeekly, $wgUserStatsTrackMonthly;
 
 		if ( !$this->user->isBot() && !$this->user->isAnon() && $this->stats_fields[$field] ) {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$dbw->update(
 				'user_stats',
 				[ $this->stats_fields[$field] . '=' . $this->stats_fields[$field] . "-{$val}" ],
@@ -239,7 +240,7 @@ class UserStatsTrack {
 	 */
 	function updateCommentScoreRec( $voteType ) {
 		if ( !$this->user->isAnon() ) {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 			if ( $voteType == 1 ) {
 				$columnName = 'stats_comment_score_positive_rec';
@@ -290,7 +291,7 @@ class UserStatsTrack {
 	 */
 	function updateRelationshipCount( $relType ) {
 		if ( !$this->user->isAnon() ) {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			if ( $relType == 1 ) {
 				$col = 'stats_friends_count';
 			} else {
@@ -313,7 +314,7 @@ class UserStatsTrack {
 	}
 
 	public function updateWeeklyPoints( $points ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$row = $dbw->selectRow(
 			'user_points_weekly',
 			'up_actor',
@@ -339,7 +340,7 @@ class UserStatsTrack {
 	 * table.
 	 */
 	public function addWeekly() {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insert(
 			'user_points_weekly',
 			[ 'up_actor' => $this->user->getActorId() ],
@@ -348,7 +349,7 @@ class UserStatsTrack {
 	}
 
 	public function updateMonthlyPoints( $points ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$row = $dbw->selectRow(
 			'user_points_monthly',
 			'up_actor',
@@ -373,7 +374,7 @@ class UserStatsTrack {
 	 * table.
 	 */
 	public function addMonthly() {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->insert(
 			'user_points_monthly',
 			[ 'up_actor' => $this->user->getActorId() ],
@@ -405,7 +406,7 @@ class UserStatsTrack {
 			$level_number_before = $user_level->getLevelNumber();
 		}
 
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$row = $dbw->selectRow(
 			'user_stats',
 			'*',

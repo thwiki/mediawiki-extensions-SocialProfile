@@ -64,6 +64,6 @@ class SystemGiftIcon {
 			'alt' => wfMessage( 'ga-gift' )->plain()
 		];
 
-		return Html::element( 'img', $params, '' );
+		return \MediaWiki\Html\Html::element( 'img', $params, '' );
 	}
 }

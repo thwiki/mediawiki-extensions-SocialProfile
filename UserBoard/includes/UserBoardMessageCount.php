@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\MediaWikiServices;
 
 use MediaWiki\Logger\LoggerFactory;
 
@@ -89,7 +90,7 @@ class UserBoardMessageCount {
 
 		$newCount = 0;
 		/*
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbw->selectRow(
 			'user_board',
 			[ 'COUNT(*) AS count' ],

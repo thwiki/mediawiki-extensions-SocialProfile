@@ -41,6 +41,6 @@ class UserActivityIcon {
 			'border' => 0,
 		];
 
-		return Html::element( 'img', $params, '' );
+		return \MediaWiki\Html\Html::element( 'img', $params, '' );
 	}
 }

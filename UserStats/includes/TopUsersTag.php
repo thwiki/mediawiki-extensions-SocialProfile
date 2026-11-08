@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\MediaWikiServices;
+use MediaWiki\User\User;
 /**
  * A parser hook that allows showing up to 50 weekly or monthly top users.
  *
@@ -58,7 +60,7 @@ function getTopUsersForTag( $input, array $args, $parser ) {
 	$x = 1;
 	$topfans = '';
 
-	$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
+	$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 	foreach ( $fans as $fan ) {
 		$user = User::newFromActorId( $fan['actor'] );
 		if ( !$user ) {

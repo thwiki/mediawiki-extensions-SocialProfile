@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
@@ -28,7 +29,7 @@ class RandomUsersWithAvatars {
 	public static function getRandomUsersWithAvatars( $input, array $args, Parser $parser ) {
 		global $wgAvatarKey;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$parser->getOutput()->addModuleStyles( [ 'ext.socialprofile.userprofile.randomuserswithavatars.styles' ] );
 		$parser->getOutput()->updateCacheExpiry( 0 );
 
@@ -90,7 +91,7 @@ class RandomUsersWithAvatars {
 				$user->loadFromDatabase();
 				$username = $user->getName();
 				$avatar = new wAvatar( $userId, $size );
-				$userLink = Title::makeTitle( NS_USER, $username );
+				$userLink = \MediaWiki\Title\Title::makeTitle( NS_USER, $username );
 
 				$output .= '<a href="' . htmlspecialchars( $userLink->getFullURL() ) .
 					'" rel="nofollow">' . $avatar->getAvatarURL( [ 'title' => $username ] ) . '</a>';

@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Api\ApiBase;
 
 /**
  * API module for setting the type of user profile, i.e. should a social profile
@@ -77,7 +79,7 @@ class ApiUserProfileType extends ApiBase {
 		}
 
 		// @todo FIXME: M A S S I V E L Y duplicates SpecialToggleUserPageType.php!
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbw->selectRow(
 			'user_profile',
 			[ 'up_actor' ],

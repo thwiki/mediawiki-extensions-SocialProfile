@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -53,7 +54,7 @@ class SpecialBoardBlast extends UnlistedSpecialPage {
 		$jsModules = [ 'ext.socialprofile.userboard.boardblast.js' ];
 		// Add WikiEditor to the textarea if enabled for the current user
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'WikiEditor' )
-			&& MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $user, 'usebetatoolbar' )
+			&& \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $user, 'usebetatoolbar' )
 		) {
 			$jsModules[] = 'ext.socialprofile.userboard.wikiEditor';
 		}
@@ -141,7 +142,7 @@ class SpecialBoardBlast extends UnlistedSpecialPage {
 					$errorHTML .= $this->msg( $errorMsgKey )->escaped();
 					$errorHTML .= '<br />';
 				}
-				$output .= Html::errorBox( $errorHTML );
+				$output .= \MediaWiki\Html\Html::errorBox( $errorHTML );
 
 				$output .= $this->displayForm();
 			}
@@ -168,15 +169,15 @@ class SpecialBoardBlast extends UnlistedSpecialPage {
 
 		$privateMessagesEnabled = $this->getConfig()->get( 'UserBoardAllowPrivateMessages' );
 		if ( $privateMessagesEnabled ) {
-			$messageTypeSelector = Html::element(
+			$messageTypeSelector = \MediaWiki\Html\Html::element(
 				'span',
 				[],
 				$this->msg( 'userboard_messagetype' )->text()
-			) . Html::rawElement(
+			) . \MediaWiki\Html\Html::rawElement(
 				'select',
 				[ 'id' => 'message_type', 'name' => 'message_type' ],
-				Html::element( 'option', [ 'value' => '0' ], $this->msg( 'userboard_public' )->text() ) .
-					Html::element( 'option', [ 'value' => '1', 'selected' => true ], $this->msg( 'userboard_private' )->text() )
+				\MediaWiki\Html\Html::element( 'option', [ 'value' => '0' ], $this->msg( 'userboard_public' )->text() ) .
+					\MediaWiki\Html\Html::element( 'option', [ 'value' => '1', 'selected' => true ], $this->msg( 'userboard_private' )->text() )
 			);
 		} else {
 			$messageTypeSelector = $this->msg( 'boardblast-message-type-note' )->escaped();

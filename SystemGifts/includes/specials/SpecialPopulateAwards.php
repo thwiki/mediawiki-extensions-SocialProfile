@@ -71,8 +71,8 @@ class PopulateAwards extends UnlistedSpecialPage {
 		$form = '<form method="post" name="populate-awards-form" action="">';
 		$form .= $this->msg( 'ga-awards-populate-confirm' )->escaped();
 		$form .= '<br />';
-		$form .= Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
-		$form .= Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
+		$form .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
+		$form .= \MediaWiki\Html\Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
 		$form .= '</form>';
 		return $form;
 	}

@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Api\ApiBase;
 
 use MediaWiki\MediaWikiServices;
 
@@ -6,7 +7,7 @@ class ApiDeleteUserBoardMessage extends ApiBase {
 	public function execute() {
 		$main = $this->getMain();
 		$user = $this->getUser();
-		$readOnlyMode = MediaWikiServices::getInstance()->getReadOnlyMode();
+		$readOnlyMode = \MediaWiki\MediaWikiServices::getInstance()->getReadOnlyMode();
 
 		$messageId = (int)$main->getVal( 'id' );
 

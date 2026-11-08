@@ -156,7 +156,7 @@ class SystemGiftManager extends SpecialPage {
 	 * @return string HTML
 	 */
 	private function renderPagination( int $total, int $perPage, int $page ) {
-		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
+		$linkRenderer = \MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 		$pageTitle = $this->getPageTitle();
 
 		// Quick sanity check first...

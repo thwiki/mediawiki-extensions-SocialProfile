@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 /**
  * @file
  * @ingroup Maintenance
@@ -66,7 +67,7 @@ class MigrateOldUserStatsUserColumnsToActor extends LoggedUpdateMaintenance {
 			);
 			foreach ( $res as $row ) {
 				$user = User::newFromId( $row->stats_user_id );
-				$actorId = MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
+				$actorId = \MediaWiki\MediaWikiServices::getInstance()->getActorNormalization()->acquireActorId( $user, $dbw );
 				$dbw->update(
 					'user_stats',
 					[

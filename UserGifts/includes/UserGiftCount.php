@@ -85,7 +85,7 @@ class UserGiftCount {
 			'user_name' => $this->user->getName()
 		] );
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$newGiftCount = 0;
 
 		$s = $dbr->selectRow(

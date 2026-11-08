@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Api\ApiBase;
 /**
  * API module for setting the visibility ("privacy") of a profile field
  *

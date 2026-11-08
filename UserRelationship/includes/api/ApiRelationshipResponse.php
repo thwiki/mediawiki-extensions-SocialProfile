@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Api\ApiBase;
 
 use MediaWiki\MediaWikiServices;
 
@@ -10,7 +11,7 @@ class ApiRelationshipResponse extends ApiBase {
 		$requestId = (int)$main->getVal( 'id' );
 
 		$user = $this->getUser();
-		$readOnlyMode = MediaWikiServices::getInstance()->getReadOnlyMode();
+		$readOnlyMode = \MediaWiki\MediaWikiServices::getInstance()->getReadOnlyMode();
 
 		// Don't allow blocked users to send messages and also don't allow message
 		// sending when the database is locked for some reason

@@ -34,7 +34,7 @@ class SocialProfileFileBackend {
 	 * @return FileBackend
 	 */
 	public function getFileBackend() {
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		$mainConfig = $services->getMainConfig();
 
 		if ( !empty( $mainConfig->get( 'SocialProfileFileBackend' ) ) ) {
@@ -46,7 +46,7 @@ class SocialProfileFileBackend {
 				// We just set the backend name to match the container to
 				// avoid having to set another variable of the same value
 				'name'           => "{$this->container}-backend",
-				'wikiId'         => WikiMap::getCurrentWikiId(),
+				'wikiId'         => \MediaWiki\WikiMap\WikiMap::getCurrentWikiId(),
 				'lockManager'    => new NullLockManager( [] ),
 				'containerPaths' => [ $this->container => "{$mainConfig->get( 'UploadDirectory' )}/{$this->container}" ],
 				'fileMode'       => 0777,
@@ -147,7 +147,7 @@ class SocialProfileFileBackend {
 	 * @return string URL
 	 */
 	public function getDefaultUrlPath( $fileName ) {
-		$mainConfig = MediaWikiServices::getInstance()->getMainConfig();
+		$mainConfig = \MediaWiki\MediaWikiServices::getInstance()->getMainConfig();
 
 		$uploadPath = $mainConfig->get( 'UploadBaseUrl' ) ? $mainConfig->get( 'UploadBaseUrl' ) .
 			$mainConfig->get( 'UploadPath' ) :

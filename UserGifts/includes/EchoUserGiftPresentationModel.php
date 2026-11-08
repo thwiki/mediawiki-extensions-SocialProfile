@@ -73,7 +73,7 @@ class EchoUserGiftPresentationModel extends EchoEventPresentationModel {
 	private function getMyProfileLink() {
 		return [
 			'label' => $this->msg( 'g-your-profile' )->text(),
-			'url' => Title::makeTitle( NS_USER, $this->getViewingUserForGender() )->getFullURL(),
+			'url' => \MediaWiki\Title\Title::makeTitle( NS_USER, $this->getViewingUserForGender() )->getFullURL(),
 			'description' => '',
 			'icon' => 'userAvatar',
 			'prioritized' => true,

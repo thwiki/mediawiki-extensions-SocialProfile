@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 /**
  * A special page for initializing social profiles for existing wikis
  * This is to be run once if you want to preserve existing user pages at User:xxx (otherwise
@@ -76,8 +77,8 @@ class SpecialPopulateUserProfiles extends SpecialPage {
 		$form = '<form method="post" name="populate-profiles-form" action="">';
 		$form .= $this->msg( 'populateuserprofiles-confirm' )->escaped();
 		$form .= '<br />';
-		$form .= Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
-		$form .= Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
+		$form .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
+		$form .= \MediaWiki\Html\Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
 		$form .= '</form>';
 		return $form;
 	}
@@ -90,7 +91,7 @@ class SpecialPopulateUserProfiles extends SpecialPage {
 	 * @return int Amount of profiles populated
 	 */
 	private function populateProfiles() {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$res = $dbw->select(
 			'page',
 			[ 'page_title' ],

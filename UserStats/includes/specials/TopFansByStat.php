@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
@@ -25,7 +26,7 @@ class TopFansByStat extends UnlistedSpecialPage {
 	public function execute( $par ) {
 		global $wgUserStatsTrackWeekly, $wgUserStatsTrackMonthly;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$linkRenderer = $this->getLinkRenderer();
 		$lang = $this->getLanguage();
 		$out = $this->getOutput();
@@ -38,7 +39,7 @@ class TopFansByStat extends UnlistedSpecialPage {
 		// Load CSS
 		$out->addModuleStyles( 'ext.socialprofile.userstats.css' );
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
 
 		$statistic = trim( $request->getVal( 'stat', $par ) );
 		$column = "stats_{$statistic}";

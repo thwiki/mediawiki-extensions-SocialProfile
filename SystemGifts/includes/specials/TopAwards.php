@@ -98,7 +98,7 @@ class TopAwards extends UnlistedSpecialPage {
 		}
 
 		// Database calls
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$res = $dbr->select(
 			[ 'user_system_gift', 'system_gift', 'actor' ],
 			[
@@ -186,7 +186,7 @@ class TopAwards extends UnlistedSpecialPage {
 				}
 
 				$userLink = $linkRenderer->makeLink(
-					Title::makeTitle( NS_USER, $user_name ),
+					\MediaWiki\Title\Title::makeTitle( NS_USER, $user_name ),
 					$user_name
 				);
 				$output .= "<div class=\"top-award\">

@@ -74,8 +74,8 @@ class UpdateEditCounts extends UnlistedSpecialPage {
 		$form = '<form method="post" name="update-edit-counts" action="">';
 		$form .= $this->msg( 'updateeditcounts-confirm' )->escaped();
 		$form .= '<br />';
-		$form .= Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
-		$form .= Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
+		$form .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
+		$form .= \MediaWiki\Html\Html::submitButton( $this->msg( 'htmlform-submit' )->text(), [ 'name' => 'wpSubmit' ] );
 		$form .= '</form>';
 		return $form;
 	}

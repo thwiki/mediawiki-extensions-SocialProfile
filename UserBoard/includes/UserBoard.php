@@ -1,4 +1,7 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Status\Status;
 
 use MediaWiki\Html\TemplateParser;
 use MediaWiki\MediaWikiServices;
@@ -67,13 +70,13 @@ class UserBoard {
 	 * @return int|false The inserted value of ub_id row, or false if it was not sent
 	 */
 	public function sendBoardMessage( $sender, $recipient, $message, $message_type = 0 ) {
-		$allowPrivateMessages = MediaWikiServices::getInstance()->getMainConfig()
+		$allowPrivateMessages = \MediaWiki\MediaWikiServices::getInstance()->getMainConfig()
 			->get( 'UserBoardAllowPrivateMessages' );
 		if ( $message_type !== self::MESSAGE_PUBLIC && !$allowPrivateMessages ) {
 			return false;
 		}
 
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$dbw->insert(
 			'user_board',
@@ -91,7 +94,7 @@ class UserBoard {
 		if ( $sender->getActorId() != $recipient->getActorId() ) {
 			$this->sendBoardNotificationEmail( $recipient, $sender );
 
-			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+			$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 			$messageCount = new UserBoardMessageCount( $cache, $recipient );
 			$messageCount->clear();
 		}
@@ -134,7 +137,7 @@ class UserBoard {
 		$recipient->load();
 
 		// Send email if user's email is confirmed and s/he's opted in to recieving social notifications
-		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+		$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 		$wantsEmail = ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ?
 			$userOptionsLookup->getBoolOption( $recipient, 'echo-subscriptions-email-social-rel' ) :
 			$userOptionsLookup->getIntOption( $recipient, 'notifymessage', 1 );
@@ -170,7 +173,7 @@ class UserBoard {
 	 * @return bool True if user owns the message, otherwise false
 	 */
 	public function doesUserOwnMessage( $user, $ub_id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_board',
 			[ 'ub_actor' ],
@@ -195,7 +198,7 @@ class UserBoard {
 	 * @return bool True if user owns the message, otherwise false
 	 */
 	public function isUserAuthor( $user, $ub_id ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_board',
 			[ 'ub_actor_from' ],
@@ -219,7 +222,7 @@ class UserBoard {
 	 */
 	public function deleteMessage( $ub_id ) {
 		if ( $ub_id ) {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$s = $dbw->selectRow(
 				'user_board',
 				[ 'ub_actor', 'ub_type' ],
@@ -251,7 +254,7 @@ class UserBoard {
 	 * @return array Array containing info about the message on success, empty array on failure
 	 */
 	public function getMessage( $messageId ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$row = $dbr->selectRow(
 			'user_board',
 			'*',
@@ -260,7 +263,7 @@ class UserBoard {
 		);
 
 		if ( $row ) {
-			$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
+			$parser = \MediaWiki\MediaWikiServices::getInstance()->getParserFactory()->create();
 			$context = RequestContext::getMain();
 			$parserOptions = ParserOptions::newFromContext( $context );
 			$message_text = $parser->parse( $row->ub_message, $context->getTitle(), $parserOptions, true );
@@ -291,7 +294,7 @@ class UserBoard {
 	 * @return array Array of user board messages
 	 */
 	public function getUserBoardMessages( $user, $user_2 = 0, $limit = 0, $page = 0 ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$offset = 0;
 		if ( $limit > 0 && $page ) {
@@ -325,7 +328,7 @@ class UserBoard {
 		$res = $dbr->query( $dbr->limitResult( $sql, $limit, $offset ), __METHOD__ );
 
 		$messages = [];
-		$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
+		$parser = \MediaWiki\MediaWikiServices::getInstance()->getParserFactory()->create();
 
 		$context = RequestContext::getMain();
 		$parserOptions = ParserOptions::newFromContext( $context );
@@ -353,7 +356,7 @@ class UserBoard {
 	 * @return int The amount of board-to-board messages
 	 */
 	public function getUserBoardToBoardCount( $user, $user_2 ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$user_sql = " ( (ub_actor={$user->getActorId()} AND ub_actor_from={$user_2->getActorId()}) OR
 					(ub_actor={$user_2->getActorId()} AND ub_actor_from={$user->getActorId()}) )";

@@ -55,7 +55,7 @@ class ViewSystemGift extends UnlistedSpecialPage {
 			}
 
 			// DB stuff
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				[ 'user_system_gift', 'actor' ],
 				[
@@ -118,7 +118,7 @@ class ViewSystemGift extends UnlistedSpecialPage {
 				foreach ( $res as $row ) {
 					$userToId = $row->actor_user;
 					$avatar = new wAvatar( $userToId, 'ml' );
-					$userNameLink = Title::makeTitle( NS_USER, $row->actor_name );
+					$userNameLink = \MediaWiki\Title\Title::makeTitle( NS_USER, $row->actor_name );
 
 					$output .= '<a href="' . htmlspecialchars( $userNameLink->getFullURL() ) . "\">
 					{$avatar->getAvatarURL()}

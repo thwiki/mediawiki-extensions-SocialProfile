@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\User\UserNamePrefixSearch;
@@ -207,7 +208,7 @@ class RemoveAvatar extends SpecialPage {
 			return [];
 		}
 		if ( $this->isUserPrivileged() ) {
-			$services = MediaWikiServices::getInstance();
+			$services = \MediaWiki\MediaWikiServices::getInstance();
 			// Autocomplete subpage as user list - public to allow caching
 			return $services->getUserNamePrefixSearch()->search(
 				UserNamePrefixSearch::AUDIENCE_PUBLIC, $user->getName(), $limit, $offset
@@ -254,7 +255,7 @@ class RemoveAvatar extends SpecialPage {
 	private function showUserAvatar( $user_name ) {
 		$out = $this->getOutput();
 		$user_name = str_replace( '_', ' ', $user_name ); // replace underscores with spaces
-		$userIdentity = MediaWikiServices::getInstance()->getUserIdentityLookup()
+		$userIdentity = \MediaWiki\MediaWikiServices::getInstance()->getUserIdentityLookup()
 			->getUserIdentityByName( $user_name );
 		$user_id = $userIdentity ? $userIdentity->getId() : 0;
 
@@ -332,7 +333,7 @@ class RemoveAvatar extends SpecialPage {
 		}
 
 		// clear cache
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$key = $cache->makeKey( 'user', 'profile', 'avatar', $id, $size );
 		$cache->delete( $key );
 	}

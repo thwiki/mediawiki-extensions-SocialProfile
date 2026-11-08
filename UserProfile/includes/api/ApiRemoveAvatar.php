@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Api\ApiBase;
 /**
  * API module for removing a user's avatar.
  *

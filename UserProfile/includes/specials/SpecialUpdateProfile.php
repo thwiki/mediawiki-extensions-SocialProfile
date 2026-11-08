@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Content\ContentHandler;
 
 use MediaWiki\Extension\SpamBlacklist\BaseBlacklist;
 use MediaWiki\Html\Html;
@@ -36,7 +37,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 			$user = $this->getUser();
 		}
 
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbw->selectRow(
 			'user_profile',
 			[ 'up_actor' ],
@@ -225,8 +226,8 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 				);
 
 				// create the user page if it doesn't exist yet
-				$title = Title::makeTitle( NS_USER, $user->getName() );
-				$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+				$title = \MediaWiki\Title\Title::makeTitle( NS_USER, $user->getName() );
+				$page = \MediaWiki\MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
 				if ( !$page->exists() ) {
 					$page->doUserEditContent(
 						ContentHandler::makeContent( '', $title ),
@@ -237,7 +238,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 				}
 			} else {
 				// Spam somewhere? Uh-oh...
-				$out->addHTML( Html::errorBox( $this->msg( 'user-profile-error-spam' )->parse() ) );
+				$out->addHTML( \MediaWiki\Html\Html::errorBox( $this->msg( 'user-profile-error-spam' )->parse() ) );
 			}
 		}
 
@@ -307,7 +308,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		$notify_message = $request->getInt( 'notify_message', 0 );
 		$show_year_of_birth = $request->getInt( 'show_year_of_birth', 0 );
 
-		$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
+		$userOptionsManager = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsManager();
 		$userOptionsManager->setOption( $user, 'notifygift', $notify_gift );
 		$userOptionsManager->setOption( $user, 'notifyfriendrequest', $notify_friend );
 		$userOptionsManager->setOption( $user, 'notifychallenge', $notify_challenge );
@@ -363,7 +364,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		}
 
 		$this->initProfile( $user );
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$request = $this->getRequest();
 
 		// As for why the rest of the fields are done below instead of here...that's got to do with T373265
@@ -483,7 +484,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		if ( $spammyFields !== [] ) {
 			return Status::newFatal( 'user-profile-error-spam' );
 		} else {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$dbw->update(
 				'user_profile',
 				/* SET */$customProfileData,
@@ -539,7 +540,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		if ( $spammyFields !== [] ) {
 			return Status::newFatal( 'user-profile-error-spam' );
 		} else {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 			$dbw->update(
 				'user_profile',
@@ -564,7 +565,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 	 * @return string
 	 */
 	function displayBasicForm( $user ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow( 'user_profile',
 			[
 				'up_location_city', 'up_location_state', 'up_location_country',
@@ -586,7 +587,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 			$hometown_city = $s->up_hometown_city;
 			$hometown_state = $s->up_hometown_state;
 			$hometown_country = $s->up_hometown_country;
-			$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+			$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 			$showYOB = $userOptionsLookup->getIntOption( $user, 'showyearofbirth', (int)!isset( $s->up_birthday ) ) == 1;
 			$birthday = self::formatBirthday( $s->up_birthday, $showYOB );
 			$schools = $s->up_schools;
@@ -626,7 +627,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		// profile field visibilities for users with JS enabled can do and have already done that
 		// with the nice JS-enabled drop-down (instead of having to rely on a plain ol'
 		// <select> + form submission, as no-JS users have to)
-		$form .= Html::hidden( 'should_update_field_visibilities', true );
+		$form .= \MediaWiki\Html\Html::hidden( 'should_update_field_visibilities', true );
 		$form .= '<div class="profile-info clearfix">';
 		$form .= '<div class="profile-update">
 			<p class="profile-update-title">' . $this->msg( 'user-profile-personal-info' )->escaped() . '</p>
@@ -666,7 +667,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		$form .= '<select name="location_country" id="location_country"><option></option>';
 
 		foreach ( $countries as $country ) {
-			$form .= Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $location_country ) ], $country );
+			$form .= \MediaWiki\Html\Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $location_country ) ], $country );
 		}
 
 		$form .= '</select>';
@@ -689,7 +690,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		$form .= '<select name="hometown_country" id="hometown_country"><option></option>';
 
 		foreach ( $countries as $country ) {
-			$form .= Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $hometown_country ) ], $country );
+			$form .= \MediaWiki\Html\Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $hometown_country ) ], $country );
 		}
 
 		$form .= '</select>';
@@ -775,7 +776,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 	 * @return string
 	 */
 	function displayPersonalForm( $user ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_profile',
 			[
@@ -813,7 +814,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		// profile field visibilities for users with JS enabled can do and have already done that
 		// with the nice JS-enabled drop-down (instead of having to rely on a plain ol'
 		// <select> + form submission, as no-JS users have to)
-		$form .= Html::hidden( 'should_update_field_visibilities', true );
+		$form .= \MediaWiki\Html\Html::hidden( 'should_update_field_visibilities', true );
 		$form .= '<div class="profile-info profile-info-other-info clearfix">
 			<div class="profile-update">
 			<p class="profile-update-title">' . $this->msg( 'user-profile-interests-entertainment' )->escaped() . '</p>
@@ -878,7 +879,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 	function displayPreferencesForm() {
 		$user = $this->getUser();
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_profile',
 			[ 'up_birthday' ],
@@ -896,7 +897,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		$form .= '<div class="profile-info clearfix">
 			<div class="profile-update">
 				<p class="profile-update-title">' . $this->msg( 'user-profile-preferences-emails' )->escaped() . '</p>';
-		$userOptionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+		$userOptionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'Echo' ) ) {
 			$form .= '<p class="profile-update-row">' .
 				$this->msg( 'user-profile-preferences-emails-manage' )->parse() .
@@ -935,7 +936,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		$form .= '</div>
 			<div class="visualClear"></div>';
 		$form .= '<input type="submit" class="site-button" value="' . $this->msg( 'user-profile-update-button' )->escaped() . '" size="20" />';
-		$form .= Html::hidden( 'wpEditToken', $user->getEditToken() );
+		$form .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $user->getEditToken() );
 		$form .= '</form>';
 		$form .= '</div>';
 
@@ -949,7 +950,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 	 * @return string HTML
 	 */
 	function displayCustomForm( $user ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbr->selectRow(
 			'user_profile',
 			[
@@ -978,7 +979,7 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		// profile field visibilities for users with JS enabled can do and have already done that
 		// with the nice JS-enabled drop-down (instead of having to rely on a plain ol'
 		// <select> + form submission, as no-JS users have to)
-		$form .= Html::hidden( 'should_update_field_visibilities', true );
+		$form .= \MediaWiki\Html\Html::hidden( 'should_update_field_visibilities', true );
 		$form .= '<div class="profile-info profile-info-custom-info clearfix">
 				<div class="profile-update">
 					<p class="profile-update-title">' . $this->msg( 'user-profile-tidbits-title' )->inContentLanguage()->parse() . '</p>
@@ -1101,10 +1102,10 @@ class SpecialUpdateProfile extends UnlistedSpecialPage {
 		// Check SpamBlacklist, if installed
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'SpamBlacklist' ) ) {
 			$spam = BaseBlacklist::getSpamBlacklist();
-			$title = Title::newFromText( 'SocialProfile_UserProfile_' . $pageId );
+			$title = \MediaWiki\Title\Title::newFromText( 'SocialProfile_UserProfile_' . $pageId );
 
 			$options = new ParserOptions( $user );
-			$output = MediaWikiServices::getInstance()->getParser()->parse( $value, $title, $options );
+			$output = \MediaWiki\MediaWikiServices::getInstance()->getParser()->parse( $value, $title, $options );
 			$links = array_keys( $output->getExternalLinks() );
 
 			$ret = $spam->filter( $links, $title, $user );

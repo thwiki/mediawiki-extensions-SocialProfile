@@ -202,3 +202,13 @@ if ( !defined( 'NS_USER_PROFILE' ) ) {
 if ( !defined( 'NS_USER_PROFILE_TALK' ) ) {
 	define( 'NS_USER_PROFILE_TALK', 203 );
 }
+
+// [1.46 迁移] MediaWiki 1.46 移除了 $wgAutoloadClasses，旧扩展的类（wAvatar 等）
+// 不再被自动加载，导致头像、成就等依赖 class_exists('wAvatar') 的逻辑静默失效。
+// 这里把 $wgAutoloadClasses 注册成 SPL 自动加载器（对其它旧扩展同样生效）。
+spl_autoload_register( static function ( $class ) {
+	global $wgAutoloadClasses;
+	if ( isset( $wgAutoloadClasses[$class] ) ) {
+		require_once $wgAutoloadClasses[$class];
+	}
+} );

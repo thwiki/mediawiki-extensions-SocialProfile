@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
@@ -42,7 +43,7 @@ class UserStats {
 	 * @return array|false
 	 */
 	private function getUserStatsCache() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$key = $cache->makeKey( 'user', 'stats', 'actor_id', $this->user->getActorId() );
 		$data = $cache->get( $key );
 		if ( $data ) {
@@ -60,14 +61,14 @@ class UserStats {
 	 * @return array
 	 */
 	public function getUserStatsDB() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$logger = LoggerFactory::getInstance( 'SocialProfile' );
 		$logger->debug( "Got user stats for {user_name} from DB\n", [
 			'user_name' => $this->user->getName()
 		] );
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$row = $dbr->selectRow(
 			'user_stats',
 			'*',
@@ -134,7 +135,7 @@ class UserStats {
 			$sort = 'DESC';
 		}
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$res = $dbr->select(
 			[ 'user_stats', 'user_relationship', 'actor' ],
 			[ 'stats_actor', 'actor_name', 'actor_user', 'stats_total_points' ],

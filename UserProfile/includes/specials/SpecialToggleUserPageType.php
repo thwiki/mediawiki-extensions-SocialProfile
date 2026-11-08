@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Content\ContentHandler;
 /**
  * A special page for updating a user's userpage preference
  * (If they want a wiki user page or social profile user page
@@ -45,7 +46,7 @@ class SpecialToggleUserPage extends UnlistedSpecialPage {
 		$this->setHeaders();
 
 		if ( $request->wasPosted() && $user->matchEditToken( $request->getVal( 'wpEditToken' ) ) ) {
-			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+			$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$s = $dbw->selectRow(
 				'user_profile',
 				[ 'up_actor' ],
@@ -84,7 +85,7 @@ class SpecialToggleUserPage extends UnlistedSpecialPage {
 				self::importUserWiki( $user );
 			}
 
-			$title = Title::makeTitle( NS_USER, $user->getName() );
+			$title = \MediaWiki\Title\Title::makeTitle( NS_USER, $user->getName() );
 			$out->redirect( $title->getFullURL() );
 		} else {
 			$out->addHTML( $this->displayForm() );
@@ -100,8 +101,8 @@ class SpecialToggleUserPage extends UnlistedSpecialPage {
 		$form = '<form method="post" name="toggle-user-page-type-form" action="">';
 		$form .= $this->msg( 'toggleuserpage-confirm' )->escaped();
 		$form .= '<br />';
-		$form .= Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
-		$form .= Html::submitButton( $this->msg( 'confirmable-yes' )->text(), [ 'name' => 'wpSubmit' ] );
+		$form .= \MediaWiki\Html\Html::hidden( 'wpEditToken', $this->getUser()->getEditToken() );
+		$form .= \MediaWiki\Html\Html::submitButton( $this->msg( 'confirmable-yes' )->text(), [ 'name' => 'wpSubmit' ] );
 		$form .= '</form>';
 		return $form;
 	}
@@ -119,8 +120,8 @@ class SpecialToggleUserPage extends UnlistedSpecialPage {
 	 * @param User $user
 	 */
 	public static function importUserWiki( User $user ) {
-		$user_wiki_title = Title::makeTitle( NS_USER_WIKI, $user->getName() );
-		$wikiPageFactory = MediaWikiServices::getInstance()->getWikiPageFactory();
+		$user_wiki_title = \MediaWiki\Title\Title::makeTitle( NS_USER_WIKI, $user->getName() );
+		$wikiPageFactory = \MediaWiki\MediaWikiServices::getInstance()->getWikiPageFactory();
 		$user_wiki = $wikiPageFactory->newFromTitle( $user_wiki_title );
 
 		if ( !$user_wiki->exists() ) {

@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\Status\Status;
 
 /**
  * Reusable avatar backend magic code shared by both the local upload class (UploadAvatar) and the upload-from-URL
@@ -174,7 +175,7 @@ trait UploadAvatarTrait {
 	public function performUpload( $comment, $pageText, $watch, $user, $tags = [], ?string $watchlistExpiry = null ) {
 		global $wgAvatarKey;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		// Avoid an E_WARNING if a user somehow submits an empty <form> (e.g. by manually
 		// changing the "Upload file" button to be visible)
@@ -308,7 +309,7 @@ trait UploadAvatarTrait {
 		// doesn't use that variable per se, this stuff in this method is here just to
 		// keep AbuseFilter happy and such. (And who knows, perhaps some other things also
 		// blindly assume that mFileProps is always set...)
-		$mwProps = new MWFileProps( MediaWikiServices::getInstance()->getMimeAnalyzer() );
+		$mwProps = new MWFileProps( \MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer() );
 		$this->mFileProps = $mwProps->getPropsFromPath( $this->mTempPath, $this->mFinalExtension );
 		return [ 'status' => UploadBase::OK ];
 	}
@@ -319,7 +320,7 @@ trait UploadAvatarTrait {
 	 * @return Title
 	 */
 	public function getTitle() {
-		return Title::makeTitle( NS_FILE, 'Avatar-placeholder' . uniqid() . '.jpg' );
+		return \MediaWiki\Title\Title::makeTitle( NS_FILE, 'Avatar-placeholder' . uniqid() . '.jpg' );
 	}
 
 	/**

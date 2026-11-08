@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Context\RequestContext;
 /**
  * RandomFeaturedUser - adds <randomfeatureduser> parser hook
  * to display a randomly chosen 'featured' user and some info regarding the
@@ -31,7 +33,7 @@ class RandomFeaturedUser {
 	public static function getRandomUser( $input, $args, Parser $parser ) {
 		global $wgRandomFeaturedUser;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$parser->getOutput()->updateCacheExpiry( 0 );
 
 		$period = $args['period'] ?? '';
@@ -98,7 +100,7 @@ class RandomFeaturedUser {
 			$output .= '</a>';
 		}
 
-		$link = Html::rawElement(
+		$link = \MediaWiki\Html\Html::rawElement(
 			'a',
 			[ 'href' => $userPageURL ],
 			wordwrap( htmlspecialchars( $random_user['user_name'], ENT_QUOTES ), 12, "<br />\n", true )
@@ -113,7 +115,7 @@ class RandomFeaturedUser {
 			 * @TODO: Do we need to instantiate a new parser?
 			 * Why can't we use the parser passed through by reference?
 			 */
-			$p = MediaWikiServices::getInstance()->getParserFactory()->create();
+			$p = \MediaWiki\MediaWikiServices::getInstance()->getParserFactory()->create();
 			$profile = new UserProfile( $user );
 			$profile_data = $profile->getProfile();
 			$about = $profile_data['about'] ?? '';

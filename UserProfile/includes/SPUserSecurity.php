@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Context\RequestContext;
 /**
  * Provides functions for managing user profile fields' visibility
  *
@@ -20,7 +22,7 @@ class SPUserSecurity {
 	 * @param string $priv New privacy value (in plain English, i.e. "public" or "hidden")
 	 */
 	public static function setPrivacy( $owner, $fieldKey, $priv ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbw->selectRow(
 			'user_fields_privacy',
 			[ '*' ],
@@ -56,7 +58,7 @@ class SPUserSecurity {
 	 * @return string Privacy value (in plain English, i.e. "public" or "hidden")
 	 */
 	public static function getPrivacy( $user, $fieldKey ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbw->selectRow(
 			'user_fields_privacy',
 			[ '*' ],
@@ -79,7 +81,7 @@ class SPUserSecurity {
 	 * @return string HTML suitable for output
 	 */
 	public static function renderEye( $fieldKey, User $user ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		$dbw = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$s = $dbw->selectRow(
 			'user_fields_privacy',
 			[ '*' ],

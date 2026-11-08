@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Html\Html;
 use MediaWiki\Html\TemplateParser;
@@ -62,7 +63,7 @@ class SpecialViewUserBoard extends SpecialPage {
 		$jsModules = [ 'ext.socialprofile.userboard.js' ];
 		// Add WikiEditor to the textarea if enabled for the current user
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'WikiEditor' )
-			&& MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $currentUser, 'usebetatoolbar' )
+			&& \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $currentUser, 'usebetatoolbar' )
 		) {
 			$jsModules[] = 'ext.socialprofile.userboard.wikiEditor';
 		}
@@ -91,10 +92,10 @@ class SpecialViewUserBoard extends SpecialPage {
 		if ( !$user_name ) {
 			$user_name = $currentUser->getName();
 		}
-		$userIdentity = MediaWikiServices::getInstance()->getUserIdentityLookup()
+		$userIdentity = \MediaWiki\MediaWikiServices::getInstance()->getUserIdentityLookup()
 			->getUserIdentityByName( $user_name );
 		$user_id = $userIdentity ? $userIdentity->getId() : 0;
-		$user = Title::makeTitle( NS_USER, $user_name );
+		$user = \MediaWiki\Title\Title::makeTitle( NS_USER, $user_name );
 
 		// Compare with '' to handle [[User:0]]
 		if ( $user_name_2 !== '' ) {
@@ -125,7 +126,7 @@ class SpecialViewUserBoard extends SpecialPage {
 			return;
 		}
 
-		if ( $request->wasPosted() && !MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
+		if ( $request->wasPosted() && !\MediaWiki\MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
 			// Deletions
 			if ( $isDelete ) {
 				if (
@@ -133,10 +134,10 @@ class SpecialViewUserBoard extends SpecialPage {
 					$currentUser->matchEditToken( $request->getVal( 'wpDeleteToken' ) )
 				) {
 					$b->deleteMessage( $messageId );
-					$output .= Html::successBox( $this->msg( 'userboard-delete-success' )->escaped() );
+					$output .= \MediaWiki\Html\Html::successBox( $this->msg( 'userboard-delete-success' )->escaped() );
 				} else {
 					// CSRF attempt or something...display an informational message in that case
-					$output .= Html::errorBox( $this->msg( 'sessionfailure' )->escaped() );
+					$output .= \MediaWiki\Html\Html::errorBox( $this->msg( 'sessionfailure' )->escaped() );
 				}
 			} elseif ( $request->getVal( 'action' ) === 'send' ) {
 				$messageType = $request->getInt( 'message_type' );
@@ -154,7 +155,7 @@ class SpecialViewUserBoard extends SpecialPage {
 						// Use the generic error message from MW core.
 						// @todo Mildly silly, since we're totally ignoring the Status retval from the
 						// anti-spam method, but oh well.
-						$output .= Html::errorBox( $this->msg( 'spamprotectiontext' )->parse() );
+						$output .= \MediaWiki\Html\Html::errorBox( $this->msg( 'spamprotectiontext' )->parse() );
 					} else {
 						$b->sendBoardMessage(
 							$currentUser,
@@ -165,7 +166,7 @@ class SpecialViewUserBoard extends SpecialPage {
 					}
 				} else {
 					// CSRF attempt or something...display an informational message in that case
-					$output .= Html::errorBox( $this->msg( 'sessionfailure' )->escaped() );
+					$output .= \MediaWiki\Html\Html::errorBox( $this->msg( 'sessionfailure' )->escaped() );
 				}
 			}
 		}
@@ -199,7 +200,7 @@ class SpecialViewUserBoard extends SpecialPage {
 			if ( !( $currentUser->getName() == $user_name ) ) {
 				$out->setPageTitle( $this->msg( 'userboard_owner', $user_name )->parse() );
 			} else {
-				$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+				$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 				$messageCount = new UserBoardMessageCount( $cache, $currentUser );
 				$messageCount->clear();
 				$out->setPageTitle( $this->msg( 'userboard_yourboard' )->parse() );
@@ -373,7 +374,7 @@ class SpecialViewUserBoard extends SpecialPage {
 					<div class="user-page-message-box-button">
 						<input type="submit" value="' . $this->msg( 'userboard_sendbutton' )->escaped() . '" class="site-button" />
 					</div>' .
-					Html::hidden( 'wpEditToken', $currentUser->getEditToken() ) .
+					\MediaWiki\Html\Html::hidden( 'wpEditToken', $currentUser->getEditToken() ) .
 				'</form>
 				</div>';
 			} else {
@@ -507,10 +508,10 @@ class SpecialViewUserBoard extends SpecialPage {
 		$form .= $this->msg( 'userboard_confirmdelete' )->escaped();
 		$form .= '<br />';
 		$form .= $b->displayMessage( $user, $messageId );
-		$form .= Html::hidden( 'wpDeleteToken', $user->getEditToken() );
-		$form .= Html::hidden( 'messageId', $messageId );
-		$form .= Html::hidden( 'action', 'delete' );
-		$form .= Html::submitButton( $this->msg( 'delete' )->text(), [ 'name' => 'wpSubmit', 'class' => 'site-button' ] );
+		$form .= \MediaWiki\Html\Html::hidden( 'wpDeleteToken', $user->getEditToken() );
+		$form .= \MediaWiki\Html\Html::hidden( 'messageId', $messageId );
+		$form .= \MediaWiki\Html\Html::hidden( 'action', 'delete' );
+		$form .= \MediaWiki\Html\Html::submitButton( $this->msg( 'delete' )->text(), [ 'name' => 'wpSubmit', 'class' => 'site-button' ] );
 		$form .= '</form>';
 
 		return $form;

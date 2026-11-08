@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use MediaWiki\Content\ContentHandler;
 
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -114,7 +116,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 			// If there were errors saving one or more of the sections, let the
 			// admin user using this special page know
 			if ( $problematicSections !== [] && count( $problematicSections ) > 3 ) {
-				$out->addHTML( Html::errorBox(
+				$out->addHTML( \MediaWiki\Html\Html::errorBox(
 					// I wanted to use a more descriptive error message here but the i18n was giving me a headache,
 					// so I opted to...not do that.
 					// That's the very reason why $problematicSections uses valid i18n msg keys instead
@@ -125,7 +127,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 				) );
 			} elseif ( $problematicSections !== [] && count( $problematicSections ) === 3 ) {
 				// ALL sections failed? Wow...do no further processing in that case, then.
-				$out->addHTML( Html::errorBox( $this->msg( 'user-profile-edit-error-all-section' )->parse() ) );
+				$out->addHTML( \MediaWiki\Html\Html::errorBox( $this->msg( 'user-profile-edit-error-all-section' )->parse() ) );
 				// @todo FIXME: this isn't optimal because now we're not displaying the form or anything, so
 				// the end-user's gotta user their browser's address bar to reload the page.
 				return;
@@ -153,8 +155,8 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 			);
 
 			// create the user page if it doesn't exist yet
-			$title = Title::makeTitle( NS_USER, $target->getName() );
-			$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+			$title = \MediaWiki\Title\Title::makeTitle( NS_USER, $target->getName() );
+			$page = \MediaWiki\MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
 			if ( !$page->exists() ) {
 				$page->doUserEditContent(
 					ContentHandler::makeContent( '', $title ),
@@ -219,7 +221,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 	}
 
 	function displayBasicForm( $tar ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_profile',
 			[
@@ -316,7 +318,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 		$form .= '<select name="location_country" id="location_country"><option></option>';
 
 		foreach ( $countries as $country ) {
-			$form .= Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $location_country ) ], $country );
+			$form .= \MediaWiki\Html\Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $location_country ) ], $country );
 		}
 
 		$form .= '</select>';
@@ -339,7 +341,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 		$form .= '<select name="hometown_country" id="hometown_country"><option></option>';
 
 		foreach ( $countries as $country ) {
-			$form .= Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $hometown_country ) ], $country );
+			$form .= \MediaWiki\Html\Html::element( 'option', [ 'value' => $country, 'selected' => ( $country == $hometown_country ) ], $country );
 		}
 
 		$form .= '</select>';
@@ -411,7 +413,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 	}
 
 	function displayPersonalForm( $tar ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_profile',
 			[
@@ -503,7 +505,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 	 * @return string HTML
 	 */
 	function displayCustomForm( $tar ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$s = $dbr->selectRow(
 			'user_profile',
 			[
@@ -582,7 +584,7 @@ class SpecialEditProfile extends SpecialUpdateProfile {
 			return [];
 		}
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		// Autocomplete subpage as user list - public to allow caching
 		return $services->getUserNamePrefixSearch()->search(
 			UserNamePrefixSearch::AUDIENCE_PUBLIC, $user->getName(), $limit, $offset

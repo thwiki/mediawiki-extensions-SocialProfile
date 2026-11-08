@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 /**
  * A special page for removing existing friends/foes for the current logged in user
@@ -60,7 +61,7 @@ class SpecialRemoveRelationship extends UnlistedSpecialPage {
 		$out->addModuleStyles( 'ext.socialprofile.userrelationship.css' );
 
 		// Support for friendly-by-default URLs (T191157)
-		$usertitle = Title::makeTitleSafe( NS_USER, $request->getVal( 'user', $par ) );
+		$usertitle = \MediaWiki\Title\Title::makeTitleSafe( NS_USER, $request->getVal( 'user', $par ) );
 		if ( !$usertitle ) {
 			$out->setPageTitle( $this->msg( 'ur-error-title' )->plain() );
 			$out->addWikiMsg( 'ur-add-no-user' );

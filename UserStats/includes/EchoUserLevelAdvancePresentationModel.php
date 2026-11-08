@@ -29,7 +29,7 @@ class EchoUserLevelAdvancePresentationModel extends EchoEventPresentationModel {
 
 	public function getPrimaryLink() {
 		return [
-			'url' => Title::makeTitle( NS_USER, $this->event->getAgent()->getName() )->getLocalURL(),
+			'url' => \MediaWiki\Title\Title::makeTitle( NS_USER, $this->event->getAgent()->getName() )->getLocalURL(),
 			'label' => $this->msg( 'echo-learn-more' )->text()
 		];
 	}

@@ -31,7 +31,7 @@ class UserWelcome {
 		// This is so stupid. The callback to onParserFirstCallInit() is
 		// *always* (assumed to be) static even if you don't declare it as such.
 		// So obviously using $this in a static function fails...grumble grumble.
-		$user = MediaWikiServices::getInstance()
+		$user = \MediaWiki\MediaWikiServices::getInstance()
 			->getUserFactory()->newFromUserIdentity( $parser->getUserIdentity() );
 		$uw = new UserWelcome( $user );
 		$output = $uw->getWelcome();
@@ -54,7 +54,7 @@ class UserWelcome {
 		$user_level = new UserLevel( $stats_data['points'] );
 
 		// Safe links
-		$level_link = Title::makeTitle( NS_HELP, wfMessage( 'mp-userlevels-link' )->inContentLanguage()->plain() );
+		$level_link = \MediaWiki\Title\Title::makeTitle( NS_HELP, wfMessage( 'mp-userlevels-link' )->inContentLanguage()->plain() );
 		$avatar_link = SpecialPage::getTitleFor( 'UploadAvatar' );
 
 		// Make an avatar
@@ -147,7 +147,7 @@ class UserWelcome {
 	}
 
 	function getRelationshipRequestLink() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$requestCount = new RelationshipRequestCount( $cache, $this->user );
 
 		$friendRequestCount = $requestCount->setFriends()->get();
@@ -181,7 +181,7 @@ class UserWelcome {
 	}
 
 	function getNewGiftLink() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$userGiftCount = new UserGiftCount( $cache, $this->user );
 
@@ -206,7 +206,7 @@ class UserWelcome {
 	}
 
 	function getNewSystemGiftLink() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$systemGiftCount = new SystemGiftCount( $cache, $this->user );
 		$giftCount = $systemGiftCount->get();
 
@@ -229,7 +229,7 @@ class UserWelcome {
 	}
 
 	function getNewMessagesLink() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$messageCount = new UserBoardMessageCount( $cache, $this->user );
 
 		$newMessages = $messageCount->get();

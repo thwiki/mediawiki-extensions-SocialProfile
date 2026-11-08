@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 /**
  * A special page for adding friends/foe requests for existing users in the wiki
@@ -72,7 +73,7 @@ class SpecialAddRelationship extends UnlistedSpecialPage {
 			$user_name = $par;
 		}
 
-		$userTitle = Title::newFromDBkey( $request->getVal( 'user', $user_name ) );
+		$userTitle = \MediaWiki\Title\Title::newFromDBkey( $request->getVal( 'user', $user_name ) );
 
 		if ( !$userTitle ) {
 			$out->setPageTitle( $this->msg( 'ur-error-title' )->escaped() );
@@ -273,7 +274,7 @@ class SpecialAddRelationship extends UnlistedSpecialPage {
 			// No prefix suggestion for invalid user
 			return [];
 		}
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		// Autocomplete subpage as user list - public to allow caching
 		return $services->getUserNamePrefixSearch()->search(
 			UserNamePrefixSearch::AUDIENCE_PUBLIC, $user->getName(), $limit, $offset

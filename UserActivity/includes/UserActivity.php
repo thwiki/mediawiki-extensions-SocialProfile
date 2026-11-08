@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
@@ -104,7 +105,7 @@ class UserActivity {
 	 * appropriate class member variables.
 	 */
 	private function setEdits() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -133,7 +134,7 @@ class UserActivity {
 			$where['actor_id'] = $this->user->getActorId();
 		}
 
-		$commentStore = MediaWikiServices::getInstance()->getCommentStore();
+		$commentStore = \MediaWiki\MediaWikiServices::getInstance()->getCommentStore();
 		$commentQuery = $commentStore->getJoin( 'rc_comment' );
 
 		$res = $dbr->select(
@@ -166,7 +167,7 @@ class UserActivity {
 				continue;
 			}
 
-			$title = Title::makeTitle( $row->rc_namespace, $row->rc_title );
+			$title = \MediaWiki\Title\Title::makeTitle( $row->rc_namespace, $row->rc_title );
 			$unixTS = wfTimestamp( TS_UNIX, $row->rc_timestamp );
 
 			$this->items_grouped['edit'][$title->getPrefixedText()]['users'][$row->actor_name][] = [
@@ -205,7 +206,7 @@ class UserActivity {
 	 * set them in the appropriate class member variables.
 	 */
 	private function setVotes() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
 
 		# Bail out if Vote table doesn't exist
 		if ( !$dbr->tableExists( 'Vote', __METHOD__ ) ) {
@@ -278,7 +279,7 @@ class UserActivity {
 	 * extension) and set them in the appropriate class member variables.
 	 */
 	private function setComments() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
 
 		# Bail out if Comments table doesn't exist
 		if ( !$dbr->tableExists( 'Comments', __METHOD__ ) ) {
@@ -339,7 +340,7 @@ class UserActivity {
 			}
 
 			if ( $show_comment ) {
-				$title = Title::makeTitle( $row->page_namespace, $row->page_title );
+				$title = \MediaWiki\Title\Title::makeTitle( $row->page_namespace, $row->page_title );
 				$unixTS = wfTimestamp( TS_UNIX, $row->item_date );
 				$user = User::newFromActorId( $row->Comment_actor );
 				if ( !$user ) {
@@ -380,7 +381,7 @@ class UserActivity {
 	 * and set them in the appropriate class member variables.
 	 */
 	private function setGiftsSent() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -447,7 +448,7 @@ class UserActivity {
 	 * tables and set them in the appropriate class member variables.
 	 */
 	private function setGiftsRec() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -539,7 +540,7 @@ class UserActivity {
 	 * variables.
 	 */
 	private function setSystemGiftsRec() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -636,7 +637,7 @@ class UserActivity {
 	private function setRelationships() {
 		global $wgLang;
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -731,7 +732,7 @@ class UserActivity {
 	 * and set them in the appropriate class member variables.
 	 */
 	private function setMessagesSent() {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 		// We do *not* want to display private messages...
@@ -822,7 +823,7 @@ class UserActivity {
 	private function setSystemMessages() {
 		global $wgLang;
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -914,7 +915,7 @@ class UserActivity {
 			return;
 		}
 
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
 		$where = [];
 
@@ -1167,9 +1168,9 @@ class UserActivity {
 			$pages = '';
 
 			if ( $type == 'friend' || $type == 'foe' || $type == 'user_message' ) {
-				$page_title = Title::newFromText( $page_name, NS_USER );
+				$page_title = \MediaWiki\Title\Title::newFromText( $page_name, NS_USER );
 			} else {
-				$page_title = Title::newFromText( $page_name );
+				$page_title = \MediaWiki\Title\Title::newFromText( $page_name );
 			}
 
 			$count_users = count( $page_data['users'] );
@@ -1221,9 +1222,9 @@ class UserActivity {
 										$type == 'foe' ||
 										$type == 'user_message'
 									) {
-										$page_title2 = Title::newFromText( $page_name2, NS_USER );
+										$page_title2 = \MediaWiki\Title\Title::newFromText( $page_name2, NS_USER );
 									} else {
-										$page_title2 = Title::newFromText( $page_name2 );
+										$page_title2 = \MediaWiki\Title\Title::newFromText( $page_name2 );
 									}
 
 									if ( $pages ) {
@@ -1260,7 +1261,7 @@ class UserActivity {
 					$users .= wfMessage( 'and' )->escaped();
 				}
 
-				$user_title = Title::makeTitle( NS_USER, $user_name );
+				$user_title = \MediaWiki\Title\Title::makeTitle( NS_USER, $user_name );
 				$user_name_short = htmlspecialchars( $wgLang->truncateForVisual( $user_name, 15 ) );
 
 				$safeTitle = htmlspecialchars( $user_title->getText() );

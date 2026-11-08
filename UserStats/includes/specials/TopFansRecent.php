@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
@@ -27,7 +28,7 @@ class TopFansRecent extends UnlistedSpecialPage {
 	 * @param string|null $par Period name, i.e. weekly or monthly (or null)
 	 */
 	public function execute( $par ) {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$linkRenderer = $this->getLinkRenderer();
 		$out = $this->getOutput();
 		$request = $this->getRequest();
@@ -84,7 +85,7 @@ class TopFansRecent extends UnlistedSpecialPage {
 			$params['ORDER BY'] = 'up_points DESC';
 			$params['LIMIT'] = $count;
 
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				"user_points_{$period}",
 				[ 'up_actor', 'up_points' ],

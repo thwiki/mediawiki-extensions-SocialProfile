@@ -33,7 +33,7 @@ class UserProfileHooks {
 
 		$title = $out->getTitle();
 		$pageTitle = $title->getText();
-		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+		$userNameUtils = \MediaWiki\MediaWikiServices::getInstance()->getUserNameUtils();
 		// Only NS_USER is "ambiguous", NS_USER_PROFILE and NS_USER_WIKI are not
 		// Also we don't care about subpages here since only the main user page
 		// can be something else than wikitext
@@ -74,14 +74,14 @@ class UserProfileHooks {
 	 * regardless of the URL params, with SocialProfile installed they behave the
 	 * same.
 	 *
-	 * @param Title $title title to check
+	 * @param \MediaWiki\Title\Title $title title to check
 	 * @param bool &$isKnown Whether the page should be considered known
 	 */
 	public static function onTitleIsAlwaysKnown( $title, &$isKnown ) {
 		// global $wgUserPageChoice;
 
 		$pageTitle = $title->getText();
-		$userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+		$userNameUtils = \MediaWiki\MediaWikiServices::getInstance()->getUserNameUtils();
 		// @todo FIXME: also filter out nonexistent users (viewing the User: page of an
 		// account that does not literally exist in the DB)
 		if (
@@ -110,14 +110,14 @@ class UserProfileHooks {
 	 * Calls UserProfilePage instead of standard article on registered users'
 	 * User: or User_profile: pages which are not subpages
 	 *
-	 * @param Title $title
+	 * @param \MediaWiki\Title\Title $title
 	 * @param Article|null &$article
 	 * @param IContextSource $context
 	 */
-	public static function onArticleFromTitle( Title $title, &$article, $context ) {
+	public static function onArticleFromTitle( \MediaWiki\Title\Title $title, &$article, $context ) {
 		global $wgUserPageChoice;
 
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 		$out = $context->getOutput();
 		$request = $context->getRequest();
 		$pageTitle = $title->getText();
@@ -183,7 +183,7 @@ class UserProfileHooks {
 			return true;
 		}
 
-		$userObjectOrThenMaybeNotIfItIsAnIPAddress = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $pageName );
+		$userObjectOrThenMaybeNotIfItIsAnIPAddress = \MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName( $pageName );
 		if ( !$userObjectOrThenMaybeNotIfItIsAnIPAddress ) {
 			// For fuck's sake, MediaWiki.
 			return true;
@@ -221,7 +221,7 @@ class UserProfileHooks {
 
 			$userOwnsThisProfile = (
 				$title->equals( $user->getUserPage() ) ||
-				$title->equals( Title::makeTitle( NS_USER_PROFILE, $user->getName() ) )
+				$title->equals( \MediaWiki\Title\Title::makeTitle( NS_USER_PROFILE, $user->getName() ) )
 			);
 
 			// Prevents direct editing of the user page and redirects the user to the appropriate special page
@@ -271,7 +271,7 @@ class UserProfileHooks {
 				return true;
 			}
 
-			$userObjectOrThenMaybeNotIfItIsAnIPAddress = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $pageName );
+			$userObjectOrThenMaybeNotIfItIsAnIPAddress = \MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName( $pageName );
 			if ( !$userObjectOrThenMaybeNotIfItIsAnIPAddress ) {
 				// For fuck's sake, MediaWiki.
 				return true;
@@ -384,9 +384,9 @@ class UserProfileHooks {
 
 		$oldHeader = '<div id="mw-diff-otitle1"><strong>' . $oldRevisionHeader . '</strong></div>' .
 			'<div id="mw-diff-otitle2">' . $avatarElement . '<div id="mw-diff-oinfo">' .
-			Linker::revUserTools( $oldRevision, !$unhide ) .
+			\MediaWiki\Linker\Linker::revUserTools( $oldRevision, !$unhide ) .
 			// '<br /><div id="mw-diff-odaysago">' . $differenceEngine->mOldRev->getTimestamp() . '</div>' .
-			MediaWikiServices::getInstance()->getCommentFormatter()
+			\MediaWiki\MediaWikiServices::getInstance()->getCommentFormatter()
 				->formatRevision( $oldRevision, $differenceEngine->getAuthority(), !$diffOnly, !$unhide ) .
 			'</div></div>' .
 			'<div id="mw-diff-otitle3" class="rccomment">' . $oldMinor . $ldel . '</div>' .
@@ -447,10 +447,10 @@ class UserProfileHooks {
 
 		$newHeader = '<div id="mw-diff-ntitle1"><strong>' . $newRevisionHeader . '</strong></div>' .
 			'<div id="mw-diff-ntitle2">' . $avatarElement . '<div id="mw-diff-oinfo">'
-			. Linker::revUserTools( $newRevision, !$unhide ) .
+			. \MediaWiki\Linker\Linker::revUserTools( $newRevision, !$unhide ) .
 			" $rollback " .
 			// '<br /><div id="mw-diff-ndaysago">' . $differenceEngine->mNewRev->getTimestamp() . '</div>' .
-			MediaWikiServices::getInstance()->getCommentFormatter()
+			\MediaWiki\MediaWikiServices::getInstance()->getCommentFormatter()
 				->formatRevision( $newRevision, $differenceEngine->getAuthority(), !$diffOnly, !$unhide ) .
 			'</div></div>' .
 			'<div id="mw-diff-ntitle3" class="rccomment">' . $newMinor . $rdel . '</div>' .

@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\MediaWikiServices;
 
@@ -66,14 +67,14 @@ class NewUsersList {
 	 * @return string HTML suitable for output
 	 */
 	public static function renderNewUsersList( $count = 10, $per_row = 5, $skipCache = false ) {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		// Try cache
 		$key = $cache->makeKey( 'users', 'new', $count );
 		$data = $cache->get( $key );
 
 		if ( !$data || $skipCache ) {
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_REPLICA );
 
 			if ( $dbr->tableExists( 'user_register_track', __METHOD__ ) ) {
 				$res = $dbr->select(

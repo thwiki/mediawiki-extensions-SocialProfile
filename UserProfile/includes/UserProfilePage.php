@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\User\User;
 
 use MediaWiki\Html\Html;
 use MediaWiki\Logger\LoggerFactory;
@@ -147,7 +148,7 @@ class UserProfilePage extends Article {
 		// Avoid PHP 7.1 warning of passing $this by reference
 		$userProfilePage = $this;
 
-		if ( !MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileBeginLeft', [ &$userProfilePage ] ) ) {
+		if ( !\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileBeginLeft', [ &$userProfilePage ] ) ) {
 			$logger->debug( "{method}: UserProfileBeginLeft messed up profile!\n", [
 				'method' => __METHOD__
 			] );
@@ -162,7 +163,7 @@ class UserProfilePage extends Article {
 		$out->addHTML( $this->getFanBoxes() );
 		$out->addHTML( $this->getUserStats() );
 
-		if ( !MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileEndLeft', [ &$userProfilePage ] ) ) {
+		if ( !\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileEndLeft', [ &$userProfilePage ] ) ) {
 			$logger->debug( "{method}: UserProfileEndLeft messed up profile!\n", [
 				'method' => __METHOD__
 			] );
@@ -175,7 +176,7 @@ class UserProfilePage extends Article {
 		// Right side
 		$out->addHTML( '<div id="user-page-right" class="clearfix">' );
 
-		if ( !MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileBeginRight', [ &$userProfilePage ] ) ) {
+		if ( !\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileBeginRight', [ &$userProfilePage ] ) ) {
 			$logger->debug( "{method}: UserProfileBeginRight messed up profile!\n", [
 				'method' => __METHOD__
 			] );
@@ -184,7 +185,7 @@ class UserProfilePage extends Article {
 		$out->addHTML( $this->getPersonalInfo() );
 		$out->addHTML( $this->getActivity() );
 		// Hook for BlogPage
-		if ( !MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileRightSideAfterActivity', [ $this ] ) ) {
+		if ( !\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileRightSideAfterActivity', [ $this ] ) ) {
 			$logger->debug( "{method}: UserProfileRightSideAfterActivity hook messed up profile!\n", [
 				'method' => __METHOD__
 			] );
@@ -192,7 +193,7 @@ class UserProfilePage extends Article {
 		$out->addHTML( $this->getCasualGames() );
 		$out->addHTML( $this->getUserBoard() );
 
-		if ( !MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileEndRight', [ &$userProfilePage ] ) ) {
+		if ( !\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileEndRight', [ &$userProfilePage ] ) ) {
 			$logger->debug( "{method}: UserProfileEndRight messed up profile!\n", [
 				'method' => __METHOD__
 			] );
@@ -302,7 +303,7 @@ class UserProfilePage extends Article {
 	 * @return array
 	 */
 	function getUserPolls() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$polls = [];
 		$logger = LoggerFactory::getInstance( 'SocialProfile' );
@@ -324,7 +325,7 @@ class UserProfilePage extends Article {
 				'user_name' => $this->profileOwner->getName()
 			] );
 
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				[ 'poll_question', 'page' ],
 				[ 'page_title', 'poll_date' ],
@@ -351,7 +352,7 @@ class UserProfilePage extends Article {
 	 * @return array
 	 */
 	function getUserQuiz() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$quiz = [];
 		$logger = LoggerFactory::getInstance( 'SocialProfile' );
@@ -372,7 +373,7 @@ class UserProfilePage extends Article {
 				'user_name' => $this->profileOwner->getName()
 			] );
 
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				'quizgame_questions',
 				[ 'q_id', 'q_text', 'q_date' ],
@@ -406,7 +407,7 @@ class UserProfilePage extends Article {
 	 * @return array
 	 */
 	function getUserPicGames() {
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		$pics = [];
 		$logger = LoggerFactory::getInstance( 'SocialProfile' );
@@ -425,7 +426,7 @@ class UserProfilePage extends Article {
 				'user_name' => $this->profileOwner->getName()
 			] );
 
-			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+			$dbr = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$res = $dbr->select(
 				'picturegame_images',
 				[ 'id', 'title', 'img1', 'img2', 'pg_date' ],
@@ -535,9 +536,9 @@ class UserProfilePage extends Article {
 
 			$x = 1;
 
-			if ( method_exists( MediaWikiServices::class, 'getRepoGroup' ) ) {
+			if ( method_exists( \MediaWiki\MediaWikiServices::class, 'getRepoGroup' ) ) {
 				// MediaWiki 1.34+
-				$repoGroup = MediaWikiServices::getInstance()->getRepoGroup();
+				$repoGroup = \MediaWiki\MediaWikiServices::getInstance()->getRepoGroup();
 			} else {
 				// @phan-suppress-next-line PhanUndeclaredStaticMethod
 				$repoGroup = RepoGroup::singleton();
@@ -547,7 +548,7 @@ class UserProfilePage extends Article {
 
 				if ( $item['type'] == 'Poll' ) {
 					$ns = ( defined( 'NS_POLL' ) ? NS_POLL : 300 );
-					$poll_title = Title::makeTitle( $ns, $item['title'] );
+					$poll_title = \MediaWiki\Title\Title::makeTitle( $ns, $item['title'] );
 					$casual_game_title = wfMessage( 'casual-game-poll' )->escaped();
 					$output .= '<a href="' . htmlspecialchars( $poll_title->getFullURL() ) .
 						"\" rel=\"nofollow\">" .
@@ -631,6 +632,9 @@ class UserProfilePage extends Article {
 			}
 
 			$value = $out->parseAsInterface( trim( $value ), false );
+			// [1.46 迁移] OutputPage::addHTML 后的片段不再过 LanguageConverter，
+			// 自动外链文本里的 -{R|...}-（markNoConversion 产物）会原样显示。
+			$value = preg_replace( '/-\{R\|(.*?)\}-/s', '$1', $value );
 
 			$output = "<div><b>{$label}</b>{$value}</div>";
 		}
@@ -744,13 +748,14 @@ class UserProfilePage extends Article {
 		$personal_output .= $this->getProfileSection( wfMessage( 'user-personal-info-location' )->escaped(), $location, false );
 		$personal_output .= $this->getProfileSection( wfMessage( 'user-personal-info-hometown' )->escaped(), $hometown, false );
 
-		if ( in_array( 'up_birthday', $this->profile_visible_fields ) && $profile_data['birthday'] !== '' ) {
-			// $profile_data['birthday'] contains the user-supplied birthdate either with or without
-			// the year, hence why its output can be either 8 or 4 characters long, and thus we need to
-			// pad it accordingly with a sufficient amount of zeros.
+		if ( in_array( 'up_birthday', $this->profile_visible_fields ) ) {
+			// [1.46 迁移] 与生产 1.39 一致：UserProfile::formatBirthday() 已把生日格式化为
+			// 可直接输出的文本（无年份时是 4 位、有年份时是 8 位数字，1.39 输出英文日期）；
+			// 1.46 新代码这里又用 Language::date( str_pad(...,14,'0') ) 转了一次，
+			// 4 位生日会被补成 02060000000000，DateTime 归一化成「0205年11月30日」。
 			$personal_output .= $this->getProfileSection(
 				wfMessage( 'user-personal-info-birthday' )->escaped(),
-				$this->getContext()->getLanguage()->date( str_pad( $profile_data['birthday'], 14, '0' ) ),
+				$profile_data['birthday'],
 				false
 			);
 		}
@@ -1002,7 +1007,7 @@ class UserProfilePage extends Article {
 		$stats = new UserStats( $this->profileOwner );
 		$stats_data = $stats->getUserStats();
 		$user_level = new UserLevel( $stats_data['points'] );
-		$level_link = Title::makeTitle( NS_HELP, wfMessage( 'user-profile-userlevels-link' )->inContentLanguage()->text() );
+		$level_link = \MediaWiki\Title\Title::makeTitle( NS_HELP, wfMessage( 'user-profile-userlevels-link' )->inContentLanguage()->text() );
 
 		$this->initializeProfileData();
 		$profile_data = $this->profile_data;
@@ -1014,8 +1019,8 @@ class UserProfilePage extends Article {
 		$contributions = SpecialPage::getTitleFor( 'Contributions', $this->profileOwner->getName() );
 		$send_message = SpecialPage::getTitleFor( 'UserBoard' );
 		$upload_avatar = SpecialPage::getTitleFor( 'UploadAvatar' );
-		$user_social_profile = Title::makeTitle( NS_USER_PROFILE, $this->profileOwner->getName() );
-		$user_wiki = Title::makeTitle( NS_USER_WIKI, $this->profileOwner->getName() );
+		$user_social_profile = \MediaWiki\Title\Title::makeTitle( NS_USER_PROFILE, $this->profileOwner->getName() );
+		$user_wiki = \MediaWiki\Title\Title::makeTitle( NS_USER_WIKI, $this->profileOwner->getName() );
 
 		$relationship = false;
 		if ( !$this->profileOwner->isAnon() ) {
@@ -1080,7 +1085,7 @@ class UserProfilePage extends Article {
 			htmlspecialchars( $this->profileOwner->getName() ) .
 		'</div>';
 
-		MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileGetProfileTitle', [ $this, &$profileTitle ] );
+		\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileGetProfileTitle', [ $this, &$profileTitle ] );
 		$output .= $profileTitle;
 
 		// Show the user's level and the amount of points they have if
@@ -1196,7 +1201,7 @@ class UserProfilePage extends Article {
 		// Provide a hook point for adding links to the profile header
 		// or maybe even removing them
 		// @see https://phabricator.wikimedia.org/T152930
-		MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileGetProfileHeaderLinks', [ $this, &$profileLinks ] );
+		\MediaWiki\MediaWikiServices::getInstance()->getHookContainer()->run( 'UserProfileGetProfileHeaderLinks', [ $this, &$profileLinks ] );
 
 		$output .= $language->pipeList( $profileLinks );
 		$output .= '</div>
@@ -1218,7 +1223,7 @@ class UserProfilePage extends Article {
 	function getRelationships( $rel_type ) {
 		global $wgUserProfileDisplay;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$context = $this->getContext();
 		$language = $context->getLanguage();
 
@@ -1377,10 +1382,10 @@ class UserProfilePage extends Article {
 
 			foreach ( $activity as $item ) {
 				$item_html = '';
-				$title = Title::makeTitle( $item['namespace'], $item['pagetitle'] );
-				$user_title = Title::makeTitle( NS_USER, $item['username'] );
+				$title = \MediaWiki\Title\Title::makeTitle( $item['namespace'], $item['pagetitle'] );
+				$user_title = \MediaWiki\Title\Title::makeTitle( NS_USER, $item['username'] );
 				// It's really weird that a field called "comment" is really a title
-				$user_title_2 = Title::makeTitle( NS_USER, $item['comment'] );
+				$user_title_2 = \MediaWiki\Title\Title::makeTitle( NS_USER, $item['comment'] );
 
 				if ( $user_title_2 ) {
 					$user_link_2 = '<a href="' . htmlspecialchars( $user_title_2->getFullURL() ) . '" rel="nofollow">' .
@@ -1531,7 +1536,7 @@ class UserProfilePage extends Article {
 	function getGifts() {
 		global $wgUserProfileDisplay;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		// If not enabled in site settings, don't display
 		if ( $wgUserProfileDisplay['gifts'] == false ) {
@@ -1625,7 +1630,7 @@ class UserProfilePage extends Article {
 	function getAwards() {
 		global $wgUserProfileDisplay;
 
-		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
+		$cache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache();
 
 		// If not enabled in site settings, don't display
 		if ( $wgUserProfileDisplay['awards'] == false ) {
@@ -1802,7 +1807,7 @@ class UserProfilePage extends Article {
 			if ( $this->viewingUser->isRegistered() && !$this->viewingUser->getBlock() ) {
 				// Add WikiEditor to the textarea if enabled for the current user
 				if ( ExtensionRegistry::getInstance()->isLoaded( 'WikiEditor' )
-					&& MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $this->viewingUser, 'usebetatoolbar' )
+					&& \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup()->getOption( $this->viewingUser, 'usebetatoolbar' )
 				) {
 					$this->getContext()->getOutput()->addModules( [ 'ext.socialprofile.userboard.wikiEditor' ] );
 				}
@@ -1840,7 +1845,7 @@ class UserProfilePage extends Article {
 						<div class="user-page-message-box-button">
 							<input type="submit" value="' . wfMessage( 'userboard_sendbutton' )->escaped() . '" class="site-button" />
 						</div>' .
-						Html::hidden( 'wpEditToken', $this->viewingUser->getEditToken() ) .
+						\MediaWiki\Html\Html::hidden( 'wpEditToken', $this->viewingUser->getEditToken() ) .
 					'</form></div>';
 			} elseif ( $this->viewingUser->isRegistered() && $this->viewingUser->getBlock() ) {
 				// Show a better i18n message for registered users who are blocked
@@ -1917,7 +1922,7 @@ class UserProfilePage extends Article {
 		$fanbox_count = $f->getFanBoxCount();
 		$fanbox_link = SpecialPage::getTitleFor( 'ViewUserBoxes' );
 		$per_row = 1;
-		$services = MediaWikiServices::getInstance();
+		$services = \MediaWiki\MediaWikiServices::getInstance();
 
 		if ( $fanboxes ) {
 			$output .= '<div class="user-section-heading">
@@ -2004,7 +2009,7 @@ class UserProfilePage extends Article {
 				}
 
 				// Get permalink
-				$fantag_title = Title::makeTitle( NS_FANTAG, $fanbox['fantag_title'] );
+				$fantag_title = \MediaWiki\Title\Title::makeTitle( NS_FANTAG, $fanbox['fantag_title'] );
 				$right_text = $fanbox['fantag_right_text'];
 				$right_text = $tagParser->parse(
 					$right_text, $this->getTitle(), ParserOptions::newFromContext( $out->getContext() ), false

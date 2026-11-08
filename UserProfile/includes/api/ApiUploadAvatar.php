@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\User\User;
+use StatusValue;
 /**
  * The API version of Special:UploadAvatar.
  *
